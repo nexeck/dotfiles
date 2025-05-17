@@ -2,3 +2,4 @@
 Library/*
 {{- end }}
 key.txt.age
+README.md
