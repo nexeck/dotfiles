@@ -1,11 +1,11 @@
 packages:
   darwin:
     brews:
-      - "1password-cli"
       - "fish"
       - "starship"
     casks:
       - "1password"
+      - "1password-cli"
       - "google-chrome"
       - "proton-pass"
       - "spotify"
