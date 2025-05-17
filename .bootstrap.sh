@@ -48,7 +48,6 @@ if [ "${machine}" = "darwin" ]; then
     # Install homebrew
     if [ ! "$(command -v brew)" ]; then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
     if [ ! "$(command -v chezmoi)" ]; then
         brew install chezmoi
