@@ -1,0 +1,4 @@
+{{- if ne .chezmoi.os "darwin" }}
+Library/*
+{{- end }}
+key.txt.age
