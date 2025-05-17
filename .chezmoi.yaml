@@ -8,5 +8,6 @@ edit:
   args: ["--wait"]
 
 hooks:
-  read-source-state.pre:
-    command: ".local/share/chezmoi/.install-password-manager.sh"
+  read-source-state:
+    pre:
+      command: ".local/share/chezmoi/.install-password-manager.sh"
