@@ -1,0 +1,103 @@
+#!/usr/bin/env fish
+
+if test -f /opt/homebrew/bin/brew
+    eval (/opt/homebrew/bin/brew shellenv)
+end
+
+if status is-interactive
+    if command -qa starship
+        starship init fish | source
+    end
+
+    if command -qa micro
+        set -Ux EDITOR micro
+    end
+
+    if command -qa atuin
+        atuin init fish | source
+    else if command -qa fzf
+        fzf --fish | source
+    end
+
+    if command -qa zoxide
+        zoxide init fish | source
+    end
+
+    if command -qa git-town
+        git-town completions fish | source
+    end
+
+    if command -qa eza
+    	abbr -a ls 'eza'
+    	abbr -a lg 'eza --long --all --header --git --git-repos'
+    	abbr -a l 'eza --long --all --header'
+    	abbr -a la 'eza --all'
+    	abbr -a ll 'eza --long'
+    	abbr -a lt 'eza --long --tree'
+    end
+
+    if command -qa mise
+        mise activate fish | source
+    end
+
+    if command -qa scw
+        eval (scw autocomplete script shell=fish)
+    end
+
+    if command -qa uv
+        uv generate-shell-completion fish | source
+    end
+
+    if command -qa uvx
+        uvx --generate-shell-completion fish | source
+    end
+else
+    if command -qa mise
+        mise activate fish --shims | source
+    end
+end
+
+
+
+if test -f "/opt/homebrew/anaconda3/bin/conda"
+    # >>> conda initialize >>>
+    # !! Contents within this block are managed by 'conda init' !!
+    eval /opt/homebrew/anaconda3/bin/conda "shell.fish" "hook" $argv | source
+    # <<< conda initialize <<<
+end
+
+if test -d "/opt/homebrew/opt/libpq/bin"
+    fish_add_path /opt/homebrew/opt/libpq/bin
+end
+
+if test -d "$HOME/.local/bin"
+    fish_add_path "$HOME/.local/bin"
+end
+
+if test -d "/opt/local/bin"
+    fish_add_path "/opt/local/bin"
+end
+
+if test -d "/opt/local/sbin"
+    fish_add_path "/opt/local/sbin"
+end
+
+if test -d "/opt/homebrew/opt/coreutils/libexec/gnubin"
+    fish_add_path /opt/homebrew/opt/coreutils/libexec/gnubin
+end
+
+if test -d "/opt/homebrew/opt/gnu-tar/libexec/gnubin"
+    fish_add_path /opt/homebrew/opt/gnu-tar/libexec/gnubin
+end
+
+if test -d "/opt/homebrew/opt/curl/bin"
+    fish_add_path /opt/homebrew/opt/curl/bin
+end
+
+if test -d "$HOME/.foundry/bin"
+    fish_add_path -a "$HOME/.foundry/bin"
+end
+
+set --export GPG_TTY (tty)
+
+set --export SSH_AUTH_SOCK ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock

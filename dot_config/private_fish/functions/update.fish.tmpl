@@ -1,0 +1,18 @@
+#!/usr/bin/env fish
+
+function update --description "Update"
+{{ if (eq .chezmoi.os "linux") }}
+    sudo apt update && sudo apt upgrade --yes
+    sudo snap refresh
+{{- end }}
+{{ if (eq .chezmoi.os "darwin") }}
+    brew update && brew upgrade
+    sudo port selfupdate
+    sudo port upgrade outdated
+{{- end }}
+
+    tldr --update
+
+    conda update --yes --name base --channel defaults conda
+    conda env update --file ~/conda-env-nexeck.yaml --prune
+end

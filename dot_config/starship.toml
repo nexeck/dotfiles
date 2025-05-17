@@ -1,0 +1,18 @@
+[aws]
+disabled = false
+
+[azure]
+disabled = false
+format = "on [$symbol($username)]($style) "
+
+[cmd_duration]
+disabled = false
+
+[hostname]
+disabled = true
+
+[time]
+disabled = false
+
+[username]
+disabled = true
