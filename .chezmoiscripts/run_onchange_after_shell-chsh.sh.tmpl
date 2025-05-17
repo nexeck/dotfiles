@@ -1,0 +1,10 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+fishPath=$(which fish)
+
+grep -qxF "${fishPath}" "/etc/shells" || echo "${fishPath}" | sudo tee -a  /etc/shells
+chsh -s $(which fish)
+{{ end -}}

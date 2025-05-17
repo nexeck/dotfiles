@@ -1,0 +1,13 @@
+packages:
+  darwin:
+    brews:
+      - "1password-cli"
+      - "fish"
+      - "starship"
+    casks:
+      - "1password"
+      - "google-chrome"
+      - "proton-pass"
+      - "spotify"
+      - "visual-studio-code"
+      - "zed"
