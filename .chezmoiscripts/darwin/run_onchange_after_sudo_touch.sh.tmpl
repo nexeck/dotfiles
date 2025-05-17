@@ -1,0 +1,6 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+set -eufo pipefail
+
+sed "s/^#auth/auth/" /etc/pam.d/sudo_local.template | sudo tee /etc/pam.d/sudo_local
+{{ end -}}

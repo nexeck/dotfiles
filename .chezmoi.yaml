@@ -1,0 +1,12 @@
+encryption: "age"
+age:
+  identity: "~/key.txt"
+  recipient: "age1vccxcl76hwl29ppule9894krl3lux7qavzt3dvtzt9dty9yv9uts4ylh6w"
+
+edit:
+  command: "zed"
+  args: ["--wait"]
+
+hooks:
+  read-source-state.pre:
+    command: ".local/share/chezmoi/.install-password-manager.sh"
