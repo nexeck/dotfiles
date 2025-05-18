@@ -1,0 +1,11 @@
+{
+  "workbench.colorCustomizations": {},
+  "terminal.integrated.automationProfile.linux": {},
+  "files.autoSave": "onFocusChange",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "terminal.integrated.copyOnSelection": true,
+  "solidity.telemetry": true
+}
