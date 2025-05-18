@@ -7,5 +7,6 @@
     "source.fixAll": "explicit"
   },
   "terminal.integrated.copyOnSelection": true,
-  "solidity.telemetry": true
+  "solidity.telemetry": false,
+  "terminal.integrated.commandsToSkipShell": ["-workbench.action.quickOpenView"]
 }
