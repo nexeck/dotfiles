@@ -1,2 +1,3 @@
 [settings]
 experimental = true
+python.uv_venv_auto = true

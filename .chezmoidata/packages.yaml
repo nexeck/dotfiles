@@ -4,7 +4,13 @@ packages:
       - charliermarsh.ruff
       - editorconfig.editorconfig
       - ms-python.python
+      - ms-python.debugpy
+      - ms-python.vscode-pylance
       - ms-toolsai.jupyter
+      - ms-toolsai.jupyter-keymap
+      - ms-toolsai.jupyter-renderers
+      - ms-toolsai.vscode-jupyter-cell-tags
+      - ms-toolsai.vscode-jupyter-slideshow
       - ms-toolsai.datawrangler
     work:
       - GitHub.copilot
@@ -16,24 +22,35 @@ packages:
         - age
         - atuin
         - bash
+        - bat
         - bind
-        - coreutils
+        - bottom
+        - chezmoi
+        - dust
+        - dysk
         - eza
+        - fd
         - fish
         - git
+        - git-cliff
         - git-delta
         - git-lfs
         - git-town
         - git-filter-repo
+        - lsd
         - nbdime
         - jq
         - yq
         - tig
-        - tldr
+        - tlrc
         - micro
         - mise
         - gnu-tar
+        - uutils-coreutils
+        - uutils-diffutils
+        - uutils-findutils
         - starship
+        - viddy
         - zoxide
       casks:
         - 1password
