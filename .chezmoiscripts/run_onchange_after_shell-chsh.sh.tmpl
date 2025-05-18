@@ -3,8 +3,8 @@
 
 set -eufo pipefail
 
-fishPath=$(which fish)
+fishPath="{{ lookPath "fish" }}"
 
-grep -qxF "${fishPath}" "/etc/shells" || echo "${fishPath}" | sudo tee -a  /etc/shells
-chsh -s $(which fish)
+grep -qxF "${fishPath}" "/etc/shells" || echo "${fishPath}" | sudo tee -a /etc/shells
+chsh -s "${fishPath}"
 {{ end -}}

@@ -1,10 +1,13 @@
 #!/usr/bin/env fish
 
-if test -f /opt/homebrew/bin/brew
-    eval (/opt/homebrew/bin/brew shellenv)
-end
+# Disable greeting message
+set -U fish_greeting
 
 if status is-interactive
+    if test -f /opt/homebrew/bin/brew
+        eval (/opt/homebrew/bin/brew shellenv)
+    end
+
     if command -qa starship
         starship init fish | source
     end

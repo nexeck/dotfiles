@@ -1,0 +1,14 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+{{ range $default := .darwin_defaults.defaults -}}
+defaults write {{ $default.domain }} {{ $default.element }} -{{ $default.type }} {{ $default.value }}
+{{ end -}}
+
+{{ range $app := .darwin_defaults.kill_to_apply -}}
+killall {{ $app }}
+{{ end -}}
+
+{{ end -}}

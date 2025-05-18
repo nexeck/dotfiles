@@ -1,0 +1,16 @@
+# When following a redirect, automatically set the previous URL as referer.
+referer = ";auto"
+
+# Wait 10 seconds before timing out.
+connect-timeout = 10
+
+# Make curl display transfer progress as a simple progress bar instead of the standard,
+# more informational, meter.
+progress-bar
+
+# When used, this will make curl attempt to figure out the timestamp of the remote file,
+# and if that is available make the local file get that same timestamp.
+remote-time
+
+# When used with -s, --silent, it makes curl show an error message if it fails.
+show-error
