@@ -1,15 +1,18 @@
 #!/usr/bin/env fish
 
 function update --description "Update"
-{{ if (eq .chezmoi.os "darwin") }}
     if command -qa brew
-        brew update && brew upgrade
+        brew update
+        brew upgrade
     end
     if command -qa port
         sudo port selfupdate
         sudo port upgrade outdated
     end
-{{- end }}
+
+    if command -qa tldr
+        tldr --update
+    end
 
     if command -qa conda
         conda update --yes --name base --channel defaults conda
