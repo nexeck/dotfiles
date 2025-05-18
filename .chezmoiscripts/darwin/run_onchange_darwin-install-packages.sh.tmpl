@@ -1,0 +1,56 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+{{ $packagesBrews := .packages.darwin.all.brews }}
+{{ $packagesCasks := .packages.darwin.all.casks }}
+{{ $packagesPorts := .packages.darwin.all.ports }}
+{{ $packagesVscode := .packages.vscode.all }}
+
+{{- if .isWork -}}
+    {{- if hasKey .packages.darwin.work "brews" -}}
+        {{- $packagesBrews = concat $packagesBrews .packages.darwin.work.brews -}}
+    {{- end -}}
+    {{- if hasKey .packages.darwin.work "casks" -}}
+        {{- $packagesCasks := concat $packagesCasks .packages.darwin.work.casks -}}
+    {{- end -}}
+    {{- if hasKey .packages.darwin.work "ports" -}}
+        {{- $packagesPorts := concat $packagesPorts .packages.darwin.work.ports -}}
+    {{- end -}}
+    {{- if hasKey .packages.vscode "work" -}}
+        {{- $packagesVscode := concat $packagesVscode .packages.vscode.work -}}
+    {{- end -}}
+{{- end -}}
+{{- if .isPersonal -}}
+    {{- if hasKey .packages.darwin.personal "brews" -}}
+        {{- $packagesBrews = concat $packagesBrews .packages.darwin.personal.brews -}}
+    {{- end -}}
+    {{- if hasKey .packages.darwin.personal "casks" -}}
+        {{- $packagesCasks = concat $packagesCasks .packages.darwin.personal.casks -}}
+    {{- end -}}
+    {{- if hasKey .packages.darwin.personal "ports" -}}
+        {{- $packagesPorts = concat $packagesPorts .packages.darwin.personal.ports -}}
+    {{- end -}}
+    {{- if hasKey .packages.vscode "personal" -}}
+        {{- $packagesVscode = concat $packagesVscode .packages.vscode.personal -}}
+    {{- end -}}
+{{- end -}}
+
+brew bundle --file=/dev/stdin <<EOF
+{{ range $packagesBrews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range $packagesCasks -}}
+cask {{ . | quote }}
+{{ end -}}
+{{ range $packagesVscode -}}
+vscode {{ . | quote }}
+{{ end -}}
+EOF
+
+{{ range .packages.darwin.all.ports }}
+sudo port install -N {{ . }}
+{{- end }}
+
+{{ end -}}

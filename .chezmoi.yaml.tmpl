@@ -1,3 +1,7 @@
+{{ $isWork := promptBoolOnce . "isWork" "Is this a work machine?" }}
+{{ $isPersonal := promptBoolOnce . "isPersonal" "Is this a personal machine?" }}
+
+
 encryption: "age"
 age:
   identity: "{{ .chezmoi.destDir }}/.config/chezmoi/key.txt"
@@ -11,3 +15,9 @@ hooks:
   read-source-state:
     pre:
       command: ".local/share/chezmoi/.install-password-manager.sh"
+
+progress: true
+
+data:
+  isWork: {{ $isWork }}
+  isPersonal: {{ $isPersonal }}

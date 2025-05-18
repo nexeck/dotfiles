@@ -1,0 +1,9 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+if command -v az; then
+    az config set core.login_experience_v2=off
+fi
+{{ end -}}

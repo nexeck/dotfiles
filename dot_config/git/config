@@ -1,14 +1,23 @@
-[include]
-    path = ~/.gitconfig_personal
+[includeIf "gitdir:~/code/work/"]
+    path = ~/.config/git/config_work
+
+[includeIf "gitdir:~/.local/share/chezmoi/"]
+    path = ~/.config/git/config_personal
+
+[includeIf "gitdir:~/code/nexeck/"]
+    path = ~/.config/git/config_personal
 
 [apply]
 	# Detect whitespace errors when applying a patch
 	whitespace = fix
 
+[column]
+	ui = auto
+
 [core]
 	# Use custom `.gitignore` and `.gitattributes`
-	excludesfile = ~/.gitignore
-	attributesfile = ~/.gitattributes
+	excludesfile = ~/.config/git/ignore
+	attributesfile = ~/.config/git/attributes
 
 	# Treat spaces before tabs and all kinds of trailing whitespace as an error
 	# [default] trailing-space: looks for spaces at the end of a line
@@ -32,11 +41,16 @@
 	pager = delta
 
 [commit]
-	template = ~/.git-template-commit
+	template = ~/.config/git/template-commit
 
 [diff]
 	# Detect copies as well as renames
 	renames = copies
+
+[fetch]
+	all = true
+	fsckobjects = false
+	prune = true
 
 [help]
 	# Automatically correct and execute mistyped commands
@@ -55,6 +69,7 @@
 	# Make `git push` push relevant annotated tags when pushing branches out.
 	followTags = true
 	autoSetupRemote = true
+	useForceIfIncludes = true
 
 [filter "lfs"]
 	required = true
@@ -66,7 +81,15 @@
 	rebase = true
 
 [rebase]
+	autoSquash = true
 	autoStash = true
+	updateRefs = true
+
+[receive]
+	fsckobjects = true
+
+[transfer]
+	fsckobjects = true
 
 [init]
 	defaultBranch = main
@@ -104,6 +127,6 @@
 
 [mergetool "nbdime"]
 	cmd = git-nbmergetool merge \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
-  
+
 [mergetool]
 	prompt = false

@@ -1,13 +1,72 @@
 packages:
+  vscode:
+    all:
+      - charliermarsh.ruff
+      - editorconfig.editorconfig
+      - ms-python.python
+      - ms-toolsai.jupyter
+      - ms-toolsai.datawrangler
+    work:
+      - GitHub.copilot
+      - golang.go
+      - mechatroner.rainbow-csv
   darwin:
-    brews:
-      - "fish"
-      - "starship"
-    casks:
-      - "1password"
-      - "1password-cli"
-      - "google-chrome"
-      - "proton-pass"
-      - "spotify"
-      - "visual-studio-code"
-      - "zed"
+    all:
+      brews:
+        - age
+        - atuin
+        - bash
+        - bind
+        - coreutils
+        - eza
+        - fish
+        - git
+        - git-delta
+        - git-lfs
+        - git-town
+        - git-filter-repo
+        - nbdime
+        - jq
+        - yq
+        - tig
+        - tldr
+        - micro
+        - mise
+        - gnu-tar
+        - starship
+        - zoxide
+      casks:
+        - 1password
+        - 1password-cli
+        - font-cascadia-code-nf
+        - google-chrome
+        - proton-pass
+        - spotify
+        - visual-studio-code
+        - zed
+      ports:
+        - curl +ares
+    personal:
+      casks:
+        - bambu-studio
+        - ledger-live
+        - portfolioperformance
+        - trezor-suite
+    work:
+      taps:
+        - databricks/tap
+      brews:
+        - databricks/tap/databricks
+        - aws-nuke
+        - aws-vault
+        - awscli
+        - azcopy
+        - azure-cli
+      casks:
+        - docker
+        - firefox
+        - jetbrains-toolbox
+        - microsoft-edge
+        - microsoft-teams
+        - microsoft-azure-storage-explorer
+        - windows-app

@@ -1,0 +1,48 @@
+darwin_defaults:
+  kill_to_apply:
+    - Finder
+    - Dock
+  defaults:
+    # Dock Configuration
+    - domain: com.apple.dock
+      element: orientation
+      type: string
+      value: "left"
+    - domain: com.apple.dock
+      element: tilesize
+      type: int
+      value: 36
+    - domain: com.apple.dock
+      element: autohide
+      type: bool
+      value: "true"
+    - domain: com.apple.dock
+      element: autohide-time-modifier
+      type: float
+      value: 0
+    - domain: com.apple.dock
+      element: autohide-delay
+      type: float
+      value: 0
+    - domain: com.apple.dock
+      element: show-recents
+      type: bool
+      value: "false"
+
+    # Finder
+    - domain: com.apple.finder
+      element: AppleShowAllExtensions
+      type: bool
+      value: "true"
+    - domain: com.apple.finder
+      element: AppleShowAllFiles
+      type: bool
+      value: "true"
+    - domain: com.apple.finder
+      element: ShowPathBar
+      type: bool
+      value: "true"
+    - domain: com.apple.finder
+      element: _FXSortFoldersFirst
+      type: bool
+      value: "true"
