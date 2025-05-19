@@ -61,6 +61,8 @@ packages:
         - spotify
         - visual-studio-code
         - zed
+        - low-profile
+        - imazing-profile-editor
       ports:
         - curl +ares
     personal:

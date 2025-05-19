@@ -3,8 +3,16 @@
 
 set -eufo pipefail
 
-{{ range $default := .darwin_defaults.defaults -}}
-defaults write {{ $default.domain }} {{ $default.element }} -{{ $default.type }} {{ $default.value }}
+{{ $defaults := .darwin_defaults.defaults.all }}
+
+{{- if .isWork -}}
+    {{- if hasKey .darwin_defaults.defaults "work" -}}
+        {{- $defaults = concat $defaults .darwin_defaults.defaults.work -}}
+    {{- end -}}
+{{- end -}}
+
+{{ range $default := $defaults -}}
+defaults {{ if and (hasKey $default "currentHost") ($default.currentHost) }}-currentHost{{ end }} write {{ $default.domain }} {{ $default.element }} -{{ $default.type }} {{ $default.value }}
 {{ end -}}
 
 {{ range $app := .darwin_defaults.kill_to_apply -}}
