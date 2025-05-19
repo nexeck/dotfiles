@@ -13,13 +13,13 @@ set -eufo pipefail
         {{- $packagesBrews = concat $packagesBrews .packages.darwin.work.brews -}}
     {{- end -}}
     {{- if hasKey .packages.darwin.work "casks" -}}
-        {{- $packagesCasks := concat $packagesCasks .packages.darwin.work.casks -}}
+        {{- $packagesCasks = concat $packagesCasks .packages.darwin.work.casks -}}
     {{- end -}}
     {{- if hasKey .packages.darwin.work "ports" -}}
-        {{- $packagesPorts := concat $packagesPorts .packages.darwin.work.ports -}}
+        {{- $packagesPorts = concat $packagesPorts .packages.darwin.work.ports -}}
     {{- end -}}
     {{- if hasKey .packages.vscode "work" -}}
-        {{- $packagesVscode := concat $packagesVscode .packages.vscode.work -}}
+        {{- $packagesVscode = concat $packagesVscode .packages.vscode.work -}}
     {{- end -}}
 {{- end -}}
 {{- if .isPersonal -}}
