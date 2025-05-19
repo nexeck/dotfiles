@@ -3,10 +3,6 @@ Library/*
 {{- end }}
 key.txt.age
 README.md
-{{- if not .isPersonal }}
-.ssh/id_ed25519_personal.pub
-.config/git/config_personal
-{{- end }}
 {{- if not .isWork }}
 .ssh/id_ed25519_work.pub
 .config/git/config_work
