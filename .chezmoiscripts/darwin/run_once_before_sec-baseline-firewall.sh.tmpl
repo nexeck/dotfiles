@@ -1,8 +1,0 @@
-{{- if eq .chezmoi.os "darwin" -}}
-#!/usr/bin/env bash
-
-set -eufo pipefail
-
-sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
-sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
-{{- end -}}
