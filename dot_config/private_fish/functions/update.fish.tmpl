@@ -17,4 +17,8 @@ function update --description "Update"
     if command -qa conda
         conda update --yes --name base --channel defaults conda
     end
+
+    {{ if eq .chezmoi.os "darwin" -}}
+    softwareupdate
+    {{ end }}
 end

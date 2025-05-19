@@ -34,8 +34,10 @@ if [ "${machine}" = "darwin" ]; then
 
     export PATH=/opt/local/bin:/opt/local/sbin:$PATH
 
-    if ! xcode-select -p 1>/dev/null; then
-      xcode-select --install
+    # Install homebrew
+    if [ ! "$(command -v brew)" ]; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
 
     # Install macports
@@ -45,10 +47,7 @@ if [ "${machine}" = "darwin" ]; then
         sudo installer -pkg "${pkg_file}" -target /
         cd -
     fi
-    # Install homebrew
-    if [ ! "$(command -v brew)" ]; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    fi
+
     if [ ! "$(command -v chezmoi)" ]; then
         brew install chezmoi
     fi

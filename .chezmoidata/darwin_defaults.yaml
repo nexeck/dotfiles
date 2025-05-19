@@ -3,46 +3,104 @@ darwin_defaults:
     - Finder
     - Dock
   defaults:
-    # Dock Configuration
-    - domain: com.apple.dock
-      element: orientation
-      type: string
-      value: "left"
-    - domain: com.apple.dock
-      element: tilesize
-      type: int
-      value: 36
-    - domain: com.apple.dock
-      element: autohide
-      type: bool
-      value: "true"
-    - domain: com.apple.dock
-      element: autohide-time-modifier
-      type: float
-      value: 0
-    - domain: com.apple.dock
-      element: autohide-delay
-      type: float
-      value: 0
-    - domain: com.apple.dock
-      element: show-recents
-      type: bool
-      value: "false"
+    all: # Work & Personal
+      # Dock Configuration
+      - domain: com.apple.dock
+        element: orientation
+        type: string
+        value: "left"
+      - domain: com.apple.dock
+        element: tilesize
+        type: int
+        value: 36
+      - domain: com.apple.dock
+        element: autohide
+        type: bool
+        value: "true"
+      - domain: com.apple.dock
+        element: autohide-time-modifier
+        type: float
+        value: 0
+      - domain: com.apple.dock
+        element: autohide-delay
+        type: float
+        value: 0
+      - domain: com.apple.dock
+        element: show-recents
+        type: bool
+        value: "false"
+      - domain: com.apple.dock
+        element: persistent-apps
+        type: array
+        value: ""
 
-    # Finder
-    - domain: com.apple.finder
-      element: AppleShowAllExtensions
-      type: bool
-      value: "true"
-    - domain: com.apple.finder
-      element: AppleShowAllFiles
-      type: bool
-      value: "true"
-    - domain: com.apple.finder
-      element: ShowPathBar
-      type: bool
-      value: "true"
-    - domain: com.apple.finder
-      element: _FXSortFoldersFirst
-      type: bool
-      value: "true"
+      # Finder
+      - domain: NSGlobalDomain
+        element: AppleShowAllExtensions
+        type: bool
+        value: "true"
+      - domain: com.apple.finder
+        element: AppleShowAllFiles
+        type: bool
+        value: "true"
+      - domain: com.apple.finder
+        element: ShowPathBar
+        type: bool
+        value: "true"
+      - domain: com.apple.finder
+        element: _FXSortFoldersFirst
+        type: bool
+        value: "true"
+
+      # Terminal
+      # Enable Secure Keyboard Entry in terminal.app
+      - domain: com.apple.Terminal
+        element: SecureKeyboardEntry
+        type: bool
+        value: "true"
+
+      # Screensaver
+      # Enable prompt for a password on screen saver
+      - domain: com.apple.screensaver
+        element: askForPassword
+        type: bool
+        value: "true"
+      # Set password delay
+      - domain: com.apple.screensaver
+        element: askForPasswordDelay
+        type: int
+        value: 0
+      - domain: com.apple.screensaver
+        element: idleTime
+        type: int
+        value: 300
+        currentHost: true
+      - domain: com.apple.dock
+        element: wvous-tl-corner
+        type: int
+        value: 0
+      - domain: com.apple.dock
+        element: wvous-bl-corner
+        type: int
+        value: 0
+      - domain: com.apple.dock
+        element: wvous-tr-corner
+        type: int
+        value: 0
+      - domain: com.apple.dock
+        element: wvous-br-corner
+        type: int
+        value: 0
+
+    work:
+      # Network Browser
+      - domain: com.apple.NetworkBrowser
+        element: DisableAirDrop
+        type: bool
+        value: "true"
+
+      # Don't default to saving documents to iCloud
+      - domain: NSGlobalDomain
+        element: NSDocumentSaveNewDocumentsToCloud
+        type: bool
+        value: "false"
