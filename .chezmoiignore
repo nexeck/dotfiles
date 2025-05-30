@@ -7,4 +7,5 @@ security-baseline.mobileconfig
 {{- if not .isWork }}
 .ssh/id_ed25519_work.pub
 .config/git/config_work
+.aws/config
 {{- end }}
