@@ -88,4 +88,5 @@ packages:
         - microsoft-edge
         - microsoft-teams
         - microsoft-azure-storage-explorer
+        - microsoft-office
         - windows-app
