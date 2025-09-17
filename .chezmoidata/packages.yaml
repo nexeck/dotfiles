@@ -52,6 +52,12 @@ packages:
         - starship
         - viddy
         - zoxide
+        - uv
+        - gnupg
+        - yubikey-personalization
+        - ykman
+        - pinentry-mac
+        - wget
       casks:
         - 1password
         - 1password-cli
@@ -81,6 +87,7 @@ packages:
         - awscli
         - azcopy
         - azure-cli
+        - wireguard-tools
       casks:
         - docker
         - firefox
