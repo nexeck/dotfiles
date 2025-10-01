@@ -8,5 +8,10 @@
   },
   "terminal.integrated.copyOnSelection": true,
   "solidity.telemetry": false,
-  "terminal.integrated.commandsToSkipShell": ["-workbench.action.quickOpenView"]
+  "terminal.integrated.commandsToSkipShell": [
+    "-workbench.action.quickOpenView"
+  ],
+  "python.analysis.typeCheckingMode": "strict",
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "terminal.integrated.stickyScroll.enabled": false
 }
