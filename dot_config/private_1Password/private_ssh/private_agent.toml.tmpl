@@ -28,10 +28,10 @@
 #
 # More examples can be found here:
 #  https://developer.1password.com/docs/ssh/agent/config
-[[ssh-keys]]
-vault = "Personal"
-
 {{ if .isWork }}
 [[ssh-keys]]
 vault = "Work"
+{{ else }}
+[[ssh-keys]]
+vault = "Personal"
 {{ end }}
