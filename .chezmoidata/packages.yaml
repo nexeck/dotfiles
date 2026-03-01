@@ -48,7 +48,6 @@ packages:
         - git-lfs
         - git-town
         - git-filter-repo
-        - lsd
         - nbdime
         - jq
         - yq
@@ -57,7 +56,6 @@ packages:
         - micro
         - mise
         - nushell
-        - gnu-tar
         - uutils-coreutils
         - uutils-diffutils
         - uutils-findutils
