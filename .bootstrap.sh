@@ -1,16 +1,11 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-set -e # -e: exit on error
-
-# POSIX way to get script's dir: https://stackoverflow.com/a/29834779/12156188
-script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
+set -euo pipefail
 
 work_dir="$(mktemp -d)"
 
-MACPORTS_VERSION=2.10.7
-
 # deletes the temp directory
-function cleanup {
+cleanup() {
   rm -rf "$work_dir"
   echo "Deleted temp working directory $work_dir"
 }
@@ -20,35 +15,64 @@ trap cleanup EXIT
 
 unameOut="$(uname -s)"
 case "${unameOut}" in
-    Darwin*)    machine=darwin;;
-    *)          echo "UNKNOWN:${unameOut}" && exit 1;;
+    Darwin*)    machine=darwin ;;
+    *)          echo "UNKNOWN:${unameOut}" && exit 1 ;;
 esac
 
 if [ "${machine}" = "darwin" ]; then
-    osx_num=$(sw_vers -productVersion | awk -F '[.]' '{print $1}')
-    case "${osx_num}" in
-        14) osx_code_name=Sonoma ;;
-        15) osx_code_name=Sequoia ;;
-        *)  echo "UNKNOWN:${osx_num}" && exit 1;;
-    esac
+    osx_num=$(sw_vers -productVersion | awk -F '.' '{print $1}')
 
     export PATH=/opt/local/bin:/opt/local/sbin:$PATH
 
     # Install homebrew
-    if [ ! "$(command -v brew)" ]; then
+    if ! command -v brew >/dev/null 2>&1; then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        eval "$(/opt/homebrew/bin/brew shellenv)"
+        eval "$(brew shellenv)"
     fi
 
     # Install macports
-    if [ ! "$(command -v port)" ]; then
-        cd "${work_dir}"
-        pkg_file=$(curl -sSL -f -O "https://github.com/macports/macports-base/releases/download/v${MACPORTS_VERSION}/MacPorts-${MACPORTS_VERSION}-${osx_num}-${osx_code_name}.pkg" -w %{filename_effective})
+    if ! command -v port >/dev/null 2>&1; then
+        # Fetch latest MacPorts version and matching package from GitHub releases API
+        macports_tag=$(curl -fsSL "https://api.github.com/repos/macports/macports-base/releases/latest" \
+            | grep '"tag_name"' | sed 's/.*"tag_name": *"\(.*\)".*/\1/')
+        macports_version="${macports_tag#v}"
+
+        # Find the asset name matching the current macOS major version
+        pkg_name=$(curl -fsSL "https://api.github.com/repos/macports/macports-base/releases/latest" \
+            | grep '"name"' \
+            | grep "MacPorts-${macports_version}-${osx_num}-.*\.pkg\"" \
+            | head -1 \
+            | sed 's/.*"name": *"\(.*\)".*/\1/')
+
+        if [ -z "${pkg_name}" ]; then
+            echo "No MacPorts package found for macOS ${osx_num}" && exit 1
+        fi
+
+        pkg_url="https://github.com/macports/macports-base/releases/download/${macports_tag}/${pkg_name}"
+        asc_url="${pkg_url}.asc"
+
+        pkg_file="${work_dir}/${pkg_name}"
+        asc_file="${pkg_file}.asc"
+
+        curl -fsSL -o "${pkg_file}" "${pkg_url}"
+        curl -fsSL -o "${asc_file}" "${asc_url}"
+
+        # Verify GPG signature if gpg is available
+        if command -v gpg >/dev/null 2>&1; then
+            # Import MacPorts signing key if not already present
+            if ! gpg --list-keys "keymaster@macports.org" >/dev/null 2>&1; then
+                curl -fsSL "https://trac.macports.org/static/gpg/macports-keyring.gpg" \
+                    | gpg --import
+            fi
+            gpg --verify "${asc_file}" "${pkg_file}"
+        else
+            echo "Warning: gpg not available, skipping signature verification"
+        fi
+
         sudo installer -pkg "${pkg_file}" -target /
-        cd -
     fi
 
-    if [ ! "$(command -v chezmoi)" ]; then
+    if ! command -v chezmoi >/dev/null 2>&1; then
         brew install chezmoi
     fi
 
@@ -56,8 +80,8 @@ if [ "${machine}" = "darwin" ]; then
         chezmoi init --apply nexeck
         chezmoi git remote set-url origin git@github.com:nexeck/dotfiles.git
     else
-      echo "Chezmoi directory exists, attempt to pull and re-init"
-      chezmoi git pull
-      chezmoi init --apply
+        echo "Chezmoi directory exists, attempting to pull and re-init"
+        chezmoi git pull
+        chezmoi init --apply
     fi
 fi
