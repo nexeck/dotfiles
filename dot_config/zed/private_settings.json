@@ -8,9 +8,7 @@
   "buffer_font_family": "Cascadia Code NF",
   "languages": {
     "Python": {
-      "language_servers": [
-        "ruff"
-      ]
+      "language_servers": ["ruff"]
     }
   },
   "terminal": {
@@ -19,6 +17,7 @@
   "auto_install_extensions": {
     "html": true,
     "fish": true,
-    "toml": true
+    "toml": true,
+    "nu": true
   }
 }
