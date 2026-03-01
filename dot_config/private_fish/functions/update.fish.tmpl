@@ -14,11 +14,7 @@ function update --description "Update"
         tldr --update
     end
 
-    if command -qa conda
-        conda update --yes --name base --channel defaults conda
-    end
-
     {{ if eq .chezmoi.os "darwin" -}}
-    softwareupdate --install --all
+    sudo softwareupdate --install --all
     {{ end }}
 end

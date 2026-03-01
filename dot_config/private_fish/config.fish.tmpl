@@ -1,9 +1,2 @@
 # Disable greeting message
 set -U fish_greeting
-
-if test -f "/opt/homebrew/anaconda3/bin/conda"
-    # >>> conda initialize >>>
-    # !! Contents within this block are managed by 'conda init' !!
-    eval /opt/homebrew/anaconda3/bin/conda "shell.fish" "hook" $argv | source
-    # <<< conda initialize <<<
-end

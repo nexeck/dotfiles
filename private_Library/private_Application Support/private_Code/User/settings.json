@@ -1,6 +1,5 @@
 {
   "workbench.colorCustomizations": {},
-  "terminal.integrated.automationProfile.linux": {},
   "files.autoSave": "onFocusChange",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
@@ -8,9 +7,18 @@
   },
   "terminal.integrated.copyOnSelection": true,
   "solidity.telemetry": false,
+  "dataWrangler.enabledFileTypes": {
+    "jsonl": true
+  },
+  "editor.formatOnPaste": true,
   "terminal.integrated.commandsToSkipShell": [
     "-workbench.action.quickOpenView"
   ],
+  "mise.binPath": "/opt/homebrew/bin/mise",
+  "go.toolsManagement.autoUpdate": true,
+  "rust-analyzer.cargo.features": "all",
+  "rust-analyzer.cargo.targetDir": true,
+  "ruff.importStrategy": "fromEnvironment",
   "python.analysis.typeCheckingMode": "strict",
   "github.copilot.nextEditSuggestions.enabled": true,
   "terminal.integrated.stickyScroll.enabled": false

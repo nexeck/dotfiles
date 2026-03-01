@@ -128,7 +128,7 @@
 			<key>allowFileSharingModification</key>
 			<false/>
 			<key>allowInternetSharingModification</key>
-			<false/>
+			<true/>
 			<key>allowPrinterSharingModification</key>
 			<false/>
 			<key>allowRemoteAppleEventsModification</key>
