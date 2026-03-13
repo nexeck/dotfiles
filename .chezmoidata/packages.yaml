@@ -2,10 +2,10 @@ packages:
   vscode:
     all:
       - charliermarsh.ruff
+      - astral-sh.ty
       - editorconfig.editorconfig
       - ms-python.python
       - ms-python.debugpy
-      - ms-python.vscode-pylance
       - ms-toolsai.jupyter
       - ms-toolsai.jupyter-keymap
       - ms-toolsai.jupyter-renderers
@@ -16,6 +16,9 @@ packages:
       - GitHub.copilot
       - golang.go
       - mechatroner.rainbow-csv
+      - ms-vscode-remote.remote-containers
+      - ms-vscode-remote.vscode-remote-extensionpack
+      - ms-vscode-remote.remote-ssh
   darwin:
     all:
       brews:
@@ -52,23 +55,27 @@ packages:
         - starship
         - viddy
         - zoxide
-        - uv
         - gnupg
-        - yubikey-personalization
         - ykman
         - pinentry-mac
         - wget
+        - ripgrep
+        - zelliy
       casks:
         - 1password
         - 1password-cli
         - font-cascadia-code-nf
+        - comet
         - google-chrome
         - proton-pass
-        - spotify
+        - deezer
         - visual-studio-code
         - zed
         - low-profile
         - imazing-profile-editor
+        - obsidian
+        - yubico-authenticator
+        - fido2-manage
       ports:
         - curl +ares
     personal:
@@ -78,18 +85,10 @@ packages:
         - portfolioperformance
         - trezor-suite
     work:
-      taps:
-        - databricks/tap
       brews:
-        - databricks/tap/databricks
-        - aws-nuke
-        - aws-vault
-        - awscli
-        - azcopy
-        - azure-cli
         - wireguard-tools
       casks:
-        - docker
+        - docker-desktop
         - firefox
         - jetbrains-toolbox
         - microsoft-edge
@@ -97,3 +96,4 @@ packages:
         - microsoft-azure-storage-explorer
         - microsoft-office
         - windows-app
+        - session-manager-plugin
