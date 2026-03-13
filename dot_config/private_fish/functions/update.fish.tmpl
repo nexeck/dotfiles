@@ -19,6 +19,6 @@ function update --description "Update"
     end
 
     {{ if eq .chezmoi.os "darwin" -}}
-    softwareupdate
+    softwareupdate --install --all
     {{ end }}
 end
