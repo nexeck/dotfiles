@@ -49,12 +49,12 @@
 
 [fetch]
 	all = true
-	fsckobjects = false
+	fsckobjects = true
 	prune = true
 
 [help]
-	# Automatically correct and execute mistyped commands
-	autocorrect = 1
+	# Automatically correct and execute mistyped commands after 1 second
+	autocorrect = 10
 
 [merge]
 	# Include summaries of merged commits in newly created merge commit messages
