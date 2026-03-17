@@ -2,6 +2,10 @@
 
 macOS dotfiles managed with [chezmoi](https://www.chezmoi.io/). No Linux support.
 
+## Architecture
+
+/.agent/prompts/ - Contains the main AI prompt files
+
 ## Profiles
 
 Two mutually exclusive profiles, set during `chezmoi init`:
