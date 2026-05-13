@@ -29,6 +29,7 @@ if [ "${machine}" = "darwin" ]; then
     case "${osx_num}" in
         14) osx_code_name=Sonoma ;;
         15) osx_code_name=Sequoia ;;
+        26) osx_code_name=Tahoe ;;
         *)  echo "UNKNOWN:${osx_num}" && exit 1;;
     esac
 
