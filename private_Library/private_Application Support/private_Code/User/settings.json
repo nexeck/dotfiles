@@ -7,11 +7,36 @@
     "source.fixAll": "explicit"
   },
   "terminal.integrated.copyOnSelection": true,
-  "solidity.telemetry": false,
   "terminal.integrated.commandsToSkipShell": [
     "-workbench.action.quickOpenView"
   ],
   "python.analysis.typeCheckingMode": "strict",
   "github.copilot.nextEditSuggestions.enabled": true,
-  "terminal.integrated.stickyScroll.enabled": false
+  "terminal.integrated.stickyScroll.enabled": false,
+  "terminal.integrated.enableKittyKeyboardProtocol": false,
+  "explorer.confirmDragAndDrop": false,
+  "chat.tools.urls.autoApprove": {
+    "https://github.com": true,
+    "https://docs.astral.sh": {
+      "approveRequest": false,
+      "approveResponse": true
+    },
+    "https://www.pulumi.com": true,
+    "https://*.microsoft.com": true,
+    "https://*.amazon.com": true
+  },
+  "chat.tools.terminal.autoApprove": {
+    "/Users/marcel/code/work/JH-JDS/dev-experience/.venv/bin/python": true,
+    "ruff": true,
+    "pulumi": true,
+    "uv": true,
+    "pytest": true,
+    "git add": true,
+    "ty": true
+  },
+  "python.testing.pytestEnabled": true,
+  "ty.disableLanguageServices": true,
+  "python.languageServer": "Pylance",
+  "editor.hover.enabled": "on",
+  "editor.parameterHints.enabled": true
 }
