@@ -19,7 +19,6 @@ packages:
       - rust-lang.rust-analyzer
       - github.copilot-chat
     personal:
-      - anthropic.claude-code
       - google.geminicodeassist
     work:
       - ms-azuretools.vscode-containers
