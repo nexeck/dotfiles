@@ -7,7 +7,7 @@ script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
 
 work_dir="$(mktemp -d)"
 
-MACPORTS_VERSION=2.10.7
+MACPORTS_VERSION=2.12.5
 
 # deletes the temp directory
 function cleanup {

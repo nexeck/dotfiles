@@ -3,7 +3,12 @@
 
 set -eufo pipefail
 
-{{ $packagesTaps := .packages.darwin.all.taps }}
+{{ $packagesTaps := list -}}
+
+
+{{- if hasKey .packages.darwin.all "taps" -}}
+{{ $packagesTaps = .packages.darwin.all.taps }}
+{{- end -}}
 {{ $packagesBrews := .packages.darwin.all.brews }}
 {{ $packagesCasks := .packages.darwin.all.casks }}
 {{ $packagesPorts := .packages.darwin.all.ports }}

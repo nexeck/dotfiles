@@ -1,7 +1,7 @@
 [user]
-	name = {{ onepasswordRead "op://personal/GIT Config/name" }}
-	email = {{ onepasswordRead "op://personal/GIT Config/email" }}
-	signingkey = {{ onepasswordRead "op://personal/GIT Config/signingkey" }}
+	name = {{ protonPass "pass://Personal/GIT Config/name" }}
+	email = {{ protonPass "pass://Personal/GIT Config/email" }}
+	signingkey = {{ protonPass "pass://Personal/GIT Config/signingkey" }}
 
 [core]
   sshCommand = "ssh -i ~/.ssh/id_ed25519_personal.pub -F /dev/null"

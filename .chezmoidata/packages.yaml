@@ -12,7 +12,6 @@ packages:
       - ms-toolsai.vscode-jupyter-cell-tags
       - ms-toolsai.vscode-jupyter-slideshow
       - ms-toolsai.datawrangler
-      - GitHub.copilot
     work:
       - golang.go
       - mechatroner.rainbow-csv
@@ -21,10 +20,6 @@ packages:
       - ms-vscode-remote.remote-ssh
   darwin:
     all:
-      taps:
-        - name: Termix-SSH/Termix
-          url: https://github.com/Termix-SSH/Termix.git
-        - atlassian/homebrew-acli
       brews:
         - age
         - atuin
@@ -33,7 +28,7 @@ packages:
         - bind
         - bottom
         - chezmoi
-        - copilot-cli
+        #- copilot-cli
         - dust
         - dysk
         - eza
@@ -65,9 +60,8 @@ packages:
         - pinentry-mac
         - wget
         - ripgrep
+        - protonpass/tap/pass-cli
       casks:
-        - 1password
-        - 1password-cli
         - font-cascadia-code-nf
         - comet
         - google-chrome
@@ -80,8 +74,6 @@ packages:
         - obsidian
         - yubico-authenticator
         - fido2-manage
-        - Termix-SSH/Termix/termix
-        - wifiman
       ports:
         - curl +ares
     personal:
@@ -90,11 +82,9 @@ packages:
         - ledger-live
         - portfolioperformance
         - trezor-suite
-        - superset
     work:
       brews:
         - wireguard-tools
-        - atlassian/homebrew-acli/acli
       casks:
         - docker-desktop
         - firefox
@@ -103,4 +93,3 @@ packages:
         - microsoft-teams
         - microsoft-office
         - windows-app
-        - session-manager-plugin
