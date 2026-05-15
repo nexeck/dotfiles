@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # exit immediately if password-manager-binary is already in $PATH
-command -v op >/dev/null 2>&1 && exit
+command -v pass-cli >/dev/null 2>&1 && exit
 
 case "$(uname -s)" in
 Darwin)
