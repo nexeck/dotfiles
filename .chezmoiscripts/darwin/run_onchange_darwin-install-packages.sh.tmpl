@@ -3,12 +3,16 @@
 
 set -eufo pipefail
 
+{{ $packagesTaps := .packages.darwin.all.taps }}
 {{ $packagesBrews := .packages.darwin.all.brews }}
 {{ $packagesCasks := .packages.darwin.all.casks }}
 {{ $packagesPorts := .packages.darwin.all.ports }}
 {{ $packagesVscode := .packages.vscode.all }}
 
 {{- if .isWork -}}
+    {{- if hasKey .packages.darwin.work "taps" -}}
+        {{- $packagesTaps = concat $packagesTaps .packages.darwin.work.taps -}}
+    {{- end -}}
     {{- if hasKey .packages.darwin.work "brews" -}}
         {{- $packagesBrews = concat $packagesBrews .packages.darwin.work.brews -}}
     {{- end -}}
@@ -23,6 +27,9 @@ set -eufo pipefail
     {{- end -}}
 {{- end -}}
 {{- if .isPersonal -}}
+    {{- if hasKey .packages.darwin.personal "taps" -}}
+        {{- $packagesTaps = concat $packagesTaps .packages.darwin.personal.taps -}}
+    {{- end -}}
     {{- if hasKey .packages.darwin.personal "brews" -}}
         {{- $packagesBrews = concat $packagesBrews .packages.darwin.personal.brews -}}
     {{- end -}}
@@ -38,6 +45,13 @@ set -eufo pipefail
 {{- end -}}
 
 brew bundle --cleanup --file=/dev/stdin <<EOF
+{{ range $packagesTaps }}
+{{- if kindIs "map" . -}}
+tap {{ .name | quote }}{{ if hasKey . "url" }}, {{ .url | quote }}{{ end }}
+{{ else -}}
+tap {{ . | quote }}
+{{ end }}
+{{- end }}
 {{ range $packagesBrews -}}
 brew {{ . | quote }}
 {{ end -}}

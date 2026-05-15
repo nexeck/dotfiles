@@ -1,6 +1,5 @@
 set -gx GPG_TTY (tty)
-set -gx SSH_AUTH_SOCK ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
-
+set -gx SSH_AUTH_SOCK ~/.ssh/proton-pass-agent.sock
 
 if command -qa micro
     set -gx EDITOR micro
