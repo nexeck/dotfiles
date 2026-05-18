@@ -18,8 +18,7 @@ Profile flags are used in `.tmpl` files and `.chezmoiignore` to conditionally in
 ## Repository Structure
 
 ```
-.bootstrap.sh                     # Initial machine setup (Homebrew, MacPorts, chezmoi)
-.chezmoi.yaml.tmpl                # chezmoi config (age encryption, 1Password hook, profile prompts)
+.chezmoi.yaml.tmpl                # chezmoi config (age encryption, profile prompts)
 .chezmoiignore                    # Profile-conditional ignores
 .chezmoidata/
   packages.yaml                   # All packages: homebrew taps/brews/casks, macports, vscode extensions
@@ -27,19 +26,18 @@ Profile flags are used in `.tmpl` files and `.chezmoiignore` to conditionally in
 .chezmoiscripts/                  # run_once_ and run_onchange_ scripts
   darwin/                         # macOS-specific scripts (packages, defaults, hostname, docker, sudo touch)
 dot_config/
-  git/                            # Git config with profile-conditional includes, 1Password signing
+  git/                            # Git config with profile-conditional includes, Proton Pass signing
   private_fish/                   # Fish shell: config, functions, conf.d drop-ins
-  private_1Password/private_ssh/  # 1Password SSH agent config (profile-conditional vaults)
   ...                             # starship, mise, atuin, zed, curl, nushell
-private_dot_ssh/                  # SSH config, allowed_signers, public keys from 1Password
+private_dot_ssh/                  # SSH config, allowed_signers, public keys from Proton Pass
 private_dot_aws/                  # AWS config (age-encrypted)
 ```
 
 ## Secrets Management
 
-**1Password** — SSH keys, git signing keys, git identity (name/email). Retrieved in templates via `onepasswordRead "op://vault/item/field"`. The 1Password CLI is auto-installed by a pre-read-source-state hook (`.install-password-manager.sh`).
+**Proton Pass** — SSH keys, git signing keys, git identity (name/email). Retrieved in templates via `protonPass "pass://..."`. The `pass-cli` is auto-installed by a pre-read-source-state hook (`.install-password-manager.sh`).
 
-**Age encryption** — Used for files that must exist without 1Password (AWS config, Databricks config). Encrypted files end in `.age`. The age identity key is decrypted from `key.txt.age` by a `run_once_before` script.
+**Age encryption** — Used for files that must exist without Proton Pass (AWS config, Databricks config). Encrypted files end in `.age`. The age identity key is decrypted from `key.txt.age` by a `run_once_before` script.
 
 ## Package Management
 

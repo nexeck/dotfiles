@@ -36,7 +36,7 @@
 	# https://git-scm.com/docs/git-update-index#_untracked_cache
 	untrackedCache = true
 
-	editor = micro
+	editor = zed --wait
 	ignorecase = false
 	pager = delta
 
