@@ -1,5 +1,7 @@
-# Quick install
+# Dotfiles
 
-```shell
-/bin/bash -c "$(curl https://raw.githubusercontent.com/nexeck/dotfiles/main/.bootstrap.sh)"
-```
+Managed with [chezmoi](https://www.chezmoi.io/).
+
+## Initialize
+
+See [dotfiles-init](https://github.com/nexeck/dotfiles-init) for machine bootstrapping.
