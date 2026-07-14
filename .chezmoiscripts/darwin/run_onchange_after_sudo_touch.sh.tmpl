@@ -3,5 +3,21 @@
 
 set -eufo pipefail
 
-grep "pam_tid" /etc/pam.d/sudo >/dev/null || echo "auth sufficient pam_tid.so" | cat - /etc/pam.d/sudo | sudo tee /etc/pam.d/sudo > /dev/null
+# On macOS Sonoma (14.0) and newer, use /etc/pam.d/sudo_local to survive updates
+if [ -f /etc/pam.d/sudo_local.template ]; then
+    if [ ! -f /etc/pam.d/sudo_local ]; then
+        echo "Creating /etc/pam.d/sudo_local from template..."
+        sudo cp /etc/pam.d/sudo_local.template /etc/pam.d/sudo_local
+    fi
+    if ! grep -q "^auth[[:space:]]*sufficient[[:space:]]*pam_tid.so" /etc/pam.d/sudo_local; then
+        echo "Enabling Touch ID in /etc/pam.d/sudo_local..."
+        sudo sed -i '' 's/#auth[[:space:]]*sufficient[[:space:]]*pam_tid.so/auth       sufficient     pam_tid.so/' /etc/pam.d/sudo_local
+    fi
+else
+    # Fallback for older macOS versions
+    if ! grep -q "pam_tid" /etc/pam.d/sudo; then
+        echo "Enabling Touch ID in /etc/pam.d/sudo..."
+        echo "auth sufficient pam_tid.so" | cat - /etc/pam.d/sudo | sudo tee /etc/pam.d/sudo > /dev/null
+    fi
+fi
 {{ end -}}

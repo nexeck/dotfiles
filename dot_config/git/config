@@ -1,11 +1,11 @@
-[includeIf "gitdir:~/code/work/"]
-    path = ~/.config/git/config_work
+[include]
+	path = ~/.config/git/config_personal
 
-[includeIf "gitdir:~/.local/share/chezmoi/"]
-    path = ~/.config/git/config_personal
+[includeIf "hasconfig:remote.*.url:git@github.com:JH-JDS/**"]
+	path = ~/.config/git/config_work
 
-[includeIf "gitdir:~/code/nexeck/"]
-    path = ~/.config/git/config_personal
+[includeIf "hasconfig:remote.*.url:git@github.com:jh-jds/**"]
+	path = ~/.config/git/config_work
 
 [apply]
 	# Detect whitespace errors when applying a patch

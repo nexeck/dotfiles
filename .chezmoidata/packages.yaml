@@ -1,29 +1,8 @@
 packages:
   vscode:
     all:
-      - charliermarsh.ruff
-      - astral-sh.ty
       - editorconfig.editorconfig
-      - ms-python.python
-      - ms-python.debugpy
-      - ms-toolsai.jupyter
-      - ms-toolsai.jupyter-keymap
-      - ms-toolsai.jupyter-renderers
-      - ms-toolsai.vscode-jupyter-cell-tags
-      - ms-toolsai.vscode-jupyter-slideshow
-      - ms-toolsai.datawrangler
-      - mechatroner.rainbow-csv
-      - hverlin.mise-vscode
-      - tamasfe.even-better-toml
-      - rust-lang.rust-analyzer
-    personal:
-      - google.geminicodeassist
-    work:
-      - golang.go
-      - ms-azuretools.vscode-containers
-      - ms-vscode-remote.remote-containers
-      - ms-vscode-remote.vscode-remote-extensionpack
-      - ms-vscode-remote.remote-ssh
+      - foam.foam-vscode
   darwin:
     all:
       taps:
@@ -93,8 +72,6 @@ packages:
       ports:
         - curl +ares
     personal:
-      brews:
-        - gemini-cli
       casks:
         - bambu-studio
         - comet
@@ -109,15 +86,6 @@ packages:
         - atuin-desktop
         - vlc
         - balenaetcher
-    work:
-      brews:
-        - aws-nuke
-        - wireguard-tools
-      casks:
-        - docker-desktop
-        - firefox
-        - jetbrains-toolbox
-        - microsoft-edge
-        - microsoft-teams
-        - microsoft-office
-        - windows-app
+        - antigravity
+        - antigravity-cli
+        - antigravity-ide

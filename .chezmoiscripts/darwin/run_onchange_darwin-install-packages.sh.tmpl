@@ -63,7 +63,7 @@ vscode {{ . | quote }}
 {{ end -}}
 EOF
 
-{{ range .packages.darwin.all.ports }}
+{{ range $packagesPorts }}
 sudo port install -N {{ . }}
 {{- end }}
 

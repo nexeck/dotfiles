@@ -3,8 +3,35 @@
 
 set -eufo pipefail
 
-fishPath="{{ lookPath "fish" }}"
+# Find fish path dynamically at runtime
+if command -v fish >/dev/null 2>&1; then
+    fish_path=$(command -v fish)
+elif [ -x /opt/homebrew/bin/fish ]; then
+    fish_path="/opt/homebrew/bin/fish"
+elif [ -x /usr/local/bin/fish ]; then
+    fish_path="/usr/local/bin/fish"
+elif [ -x /usr/bin/fish ]; then
+    fish_path="/usr/bin/fish"
+else
+    echo "Fish shell not found, skipping shell change."
+    exit 0
+fi
 
-grep -qxF "${fishPath}" "/etc/shells" || echo "${fishPath}" | sudo tee -a /etc/shells
-chsh -s "${fishPath}"
+# Add fish to /etc/shells if not already present
+if ! grep -qxF "${fish_path}" /etc/shells; then
+    echo "${fish_path}" | sudo tee -a /etc/shells
+fi
+
+# Determine current user shell
+if [ "$(uname)" = "Darwin" ]; then
+    current_shell=$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')
+else
+    current_shell=$(getent passwd "$USER" | cut -d: -f7)
+fi
+
+# Change shell only if different
+if [ "${current_shell}" != "${fish_path}" ]; then
+    echo "Changing shell to ${fish_path}..."
+    chsh -s "${fish_path}"
+fi
 {{ end -}}

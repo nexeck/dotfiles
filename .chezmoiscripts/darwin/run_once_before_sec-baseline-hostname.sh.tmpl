@@ -3,8 +3,25 @@
 
 set -eufo pipefail
 
-sudo scutil --set ComputerName {{ if .isWork }}macbook-w{{ else }}macbook-p{{ end }}
-sudo scutil --set HostName {{ if .isWork }}macbook-w{{ else }}macbook-p{{ end }}
-sudo scutil --set LocalHostName {{ if .isWork }}macbook-w{{ else }}macbook-p{{ end }}
-sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string {{ if .isWork }}macbook-w{{ else }}macbook-p{{ end }}
+# Try to get serial number from ioreg
+serial_number=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F '"' '/IOPlatformSerialNumber/ { print $4 }')
+
+# Fallback to system_profiler if ioreg is empty
+if [ -z "${serial_number}" ]; then
+    serial_number=$(system_profiler SPHardwareDataType | awk '/Serial/ { print $4 }' | head -n1)
+fi
+
+if [ -n "${serial_number}" ]; then
+    readonly hostname="MacOS-${serial_number}"
+
+    sudo scutil --set ComputerName "${hostname}"
+    sudo scutil --set HostName "${hostname}"
+    sudo scutil --set LocalHostName "${hostname}"
+
+    # NetBIOS name is limited to 15 uppercase characters
+    readonly netbios_name=$(echo "${hostname:0:15}" | tr '[:lower:]' '[:upper:]')
+    sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "${netbios_name}"
+else
+    echo "Could not retrieve serial number. Hostname change skipped."
+fi
 {{- end -}}
