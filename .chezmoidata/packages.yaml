@@ -65,6 +65,9 @@ packages:
         - tabby
       ports:
         - curl +ares
+    work:
+      casks:
+        - firefox
     personal:
       casks:
         - bambu-studio
