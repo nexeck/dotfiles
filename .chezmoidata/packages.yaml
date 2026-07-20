@@ -2,7 +2,11 @@ packages:
   vscode:
     all:
       - editorconfig.editorconfig
-      - foam.foam-vscode
+      - astral-sh.ty
+      - charliermarsh.ruff
+      - ms-python.python
+      - ms-toolsai.datawrangler
+      - ms-toolsai.jupyter
   darwin:
     all:
       taps:
@@ -89,3 +93,4 @@ packages:
         - antigravity
         - antigravity-cli
         - antigravity-ide
+        - claude
