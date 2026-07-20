@@ -10,7 +10,6 @@ packages:
   darwin:
     all:
       taps:
-        - emqx/mqttx
         - tw93/tap
         - protonpass/tap
       brews:
@@ -32,7 +31,6 @@ packages:
         - git-lfs
         - git-town
         - git-filter-repo
-        - nbdime
         - jq
         - yq
         - tig
@@ -51,35 +49,27 @@ packages:
         - pinentry-mac
         - wget
         - ripgrep
-        - emqx/mqttx/mqttx-cli
-        - sops
         - tw93/tap/mole
-        - wireguard-tools
         - protonpass/tap/pass-cli
       casks:
-        - alacritty
         - font-cascadia-code-nf
         - comet
         - google-chrome
         - proton-pass
-        - deezer
         - visual-studio-code
         - zed
-        - low-profile
-        - imazing-profile-editor
         - obsidian
-        - mqttx
         - yubico-authenticator
         - fido2-manage
         - ghostty
-        - tolaria
+        - tabby
       ports:
         - curl +ares
     personal:
       casks:
         - bambu-studio
         - comet
-        - duckduckgo
+        - deezer
         - ledger-wallet
         - portfolioperformance
         - proton-drive
