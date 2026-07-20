@@ -1,5 +1,5 @@
 {{ $isWork := promptBoolOnce . "isWork" "Is this a work machine?" }}
-{{ $isPersonal := promptBoolOnce . "isPersonal" "Is this a personal machine?" }}
+{{ $isPersonal := not $isWork }}
 
 
 encryption: "age"
