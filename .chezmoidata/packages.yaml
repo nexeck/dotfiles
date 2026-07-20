@@ -57,7 +57,7 @@ packages:
         - google-chrome
         - proton-pass
         - visual-studio-code
-        - zed
+        #- zed
         - obsidian
         - yubico-authenticator
         - fido2-manage
