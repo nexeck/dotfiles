@@ -14,7 +14,10 @@ edit:
 hooks:
   read-source-state:
     pre:
-      command: "{{ .chezmoi.sourceDir }}/.install-password-manager.sh"
+      command: "sh"
+      args:
+        - "-c"
+        - "{{ .chezmoi.sourceDir }}/.check-privileges.sh && {{ .chezmoi.sourceDir }}/.install-password-manager.sh"
 
 progress: true
 
