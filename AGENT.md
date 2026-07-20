@@ -67,7 +67,7 @@ packages:
       ports: [] # MacPorts packages
 ```
 
-Packages are installed by `.chezmoiscripts/darwin/run_onchange_darwin-install-packages.sh.tmpl`.
+Packages are installed by `.chezmoiscripts/darwin/run_darwin-install-packages.sh.tmpl`.
 
 ## Conventions
 
