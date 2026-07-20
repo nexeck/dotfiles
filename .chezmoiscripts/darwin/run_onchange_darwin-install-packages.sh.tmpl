@@ -49,6 +49,7 @@ set -eufo pipefail
 {{- end -}}
 
 brew bundle cleanup --install --force --file=/dev/stdin <<EOF
+cask_args require_sha: true
 {{ range $packagesTaps }}
 {{- if kindIs "map" . -}}
 tap {{ .name | quote }}, trusted: true{{ if hasKey . "url" }}, {{ .url | quote }}{{ end }}
