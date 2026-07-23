@@ -1,0 +1,3 @@
+# Login shells only read .bash_profile, not .bashrc, so source it explicitly
+# to keep a single source of truth for PATH/env setup.
+[ -r "$HOME/.bashrc" ] && . "$HOME/.bashrc"

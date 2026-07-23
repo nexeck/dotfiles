@@ -1,0 +1,11 @@
+# Sourced by bash for every interactive shell (login and non-login), so
+# PATH/env setup is present even when bash is invoked directly (e.g. from
+# an interactive zsh session) without going through .bash_profile.
+[ -r "$HOME/.config/shell/path.sh" ] && . "$HOME/.config/shell/path.sh"
+
+# Prompt: mirrors dot_config/private_fish/conf.d/starship.fish.
+case $- in
+    *i*)
+        command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
+        ;;
+esac
