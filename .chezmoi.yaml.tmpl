@@ -37,8 +37,7 @@ hooks:
     pre:
       command: "sh"
       args:
-        - "-c"
-        - "{{ .chezmoi.sourceDir }}/.check-privileges.sh && {{ .chezmoi.sourceDir }}/.install-password-manager.sh"
+        - "{{ .chezmoi.sourceDir }}/.install-password-manager.sh"
 
 progress: true
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
 
-# if the privilegesCLI (SAP Privileges.app) is available, request admin rights
-command -v privilegesCLI >/dev/null 2>&1 && privilegesCLI --add
-
+# Compatibility shim for existing chezmoi configs. The source config no longer
+# requests administrator privileges from its read-source-state hook.
 exit 0
