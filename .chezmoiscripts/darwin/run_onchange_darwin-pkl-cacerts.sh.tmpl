@@ -1,0 +1,26 @@
+{{- if and (eq .chezmoi.os "darwin") .isWork -}}
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Export the macOS system trust store (system root CAs + the admin/System
+# keychain, which is where the corporate Zscaler root CA lands) into
+# ~/.pkl/cacerts. pkl loads every PEM found in ~/.pkl/cacerts in addition to
+# its bundled Mozilla roots, so this makes the pkl CLI trust Zscaler-inspected
+# TLS behind the corporate proxy.
+#
+# run_onchange re-runs whenever the fingerprint below changes, i.e. whenever the
+# system/root keychains are updated (e.g. Zscaler CA rotation).
+# certs-fingerprint: {{ output "sh" "-c" "security find-certificate -a -Z /System/Library/Keychains/SystemRootCertificates.keychain /Library/Keychains/System.keychain 2>/dev/null | grep '^SHA-256' | sort | shasum -a 256 | cut -d' ' -f1" | trim }}
+
+cacerts_dir="${HOME}/.pkl/cacerts"
+mkdir -p "$cacerts_dir"
+
+security export -t certs -f pemseq \
+    -k /System/Library/Keychains/SystemRootCertificates.keychain \
+    -o "$cacerts_dir/systemrootscacerts.pem"
+
+security export -t certs -f pemseq \
+    -k /Library/Keychains/System.keychain \
+    -o "$cacerts_dir/cacerts.pem"
+{{ end -}}
