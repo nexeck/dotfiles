@@ -7,6 +7,27 @@ age:
   identity: "{{ .chezmoi.destDir }}/.config/chezmoi/key.txt"
   recipient: "age1vccxcl76hwl29ppule9894krl3lux7qavzt3dvtzt9dty9yv9uts4ylh6w"
 
+{{- if $isWork }}
+# Pin the umask chezmoi uses to compute target file/dir permissions, instead
+# of relying on the umask of whatever process invokes `chezmoi apply`
+# (interactive fish shell here uses 0022, but that's irrelevant - see below).
+#
+# 0o077 (not 0o022!) on purpose: this machine is Intune-managed (isWork) and
+# its macOS security baseline periodically runs a root compliance/remediation
+# job (IntuneMdmDaemon -> /bin/chmod, confirmed via `log show`) that enforces
+# "home folders are secure" by recursively stripping all group/other
+# permissions under $HOME. Fighting that by targeting 0644/0755 just causes
+# every `chezmoi apply` to be silently reverted by the next Intune sweep and
+# `chezmoi diff`/`status` to flip-flop forever. Targeting 0600/0700 instead
+# means chezmoi agrees with the enforced policy, so there's nothing left to
+# fight - diffs stay clean and files stay usable (only this user needs
+# access to their own dotfiles anyway).
+#
+# Only set on work machines - personal machines aren't Intune-managed and
+# should keep using the normal system umask (0022 -> 0644/0755).
+umask: 0o077
+{{- end }}
+
 edit:
   command: "zed"
   args: ["--wait"]
