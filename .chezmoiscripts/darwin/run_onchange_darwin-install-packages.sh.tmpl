@@ -3,6 +3,14 @@
 
 set -eufo pipefail
 
+# Make Node/Electron (used by `code --install-extension` under `brew bundle`)
+# trust the macOS system keychain (Node >= 22.15) instead of its bundled CA
+# bundle. Required behind the corporate TLS-intercepting proxy, otherwise
+# VS Code extension installs fail with certificate errors. Set explicitly here
+# so the first bootstrap works even before the login LaunchAgent
+# (com.user.node-use-system-ca) has set it globally.
+export NODE_USE_SYSTEM_CA=1
+
 # authenticate the sudo session upfront so later sudo calls (e.g. port install) don't prompt mid-script
 sudo -v
 
@@ -111,7 +119,10 @@ brew bundle install --file="$brewfile"
 {{- end }}
 
 {{ range $packagesPorts }}
-#sudo port install -N {{ . }}
+# MacPorts is intentionally retained, but MDM currently prevents bootstrapping
+# it. Keep the desired ports declared so installation can be re-enabled here
+# when that restriction is lifted.
+# sudo port install -N {{ . }}
 {{- end }}
 
 {{ end -}}
