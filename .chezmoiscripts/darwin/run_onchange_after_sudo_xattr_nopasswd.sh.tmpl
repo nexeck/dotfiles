@@ -1,4 +1,4 @@
-{{- if (eq .chezmoi.os "darwin") -}}
+{{- if and (eq .chezmoi.os "darwin") .isWork -}}
 #!/usr/bin/env bash
 
 set -eufo pipefail
@@ -6,7 +6,8 @@ set -eufo pipefail
 # Allow removing the com.apple.quarantine xattr without a password prompt, so
 # the watchexec-based dequarantine LaunchAgents (see
 # private_Library/private_LaunchAgents/executable_com.watchexec.homebrew-bin-dequarantine.plist.tmpl)
-# can run unattended in the background.
+# can run unattended in the background. Only needed on work machines - see
+# .chezmoiscripts/darwin/run_onchange_darwin-install-packages.sh.tmpl.
 sudoers_file="/etc/sudoers.d/xattr-dequarantine"
 tmp_file="$(mktemp)"
 trap 'rm -f "$tmp_file"' EXIT

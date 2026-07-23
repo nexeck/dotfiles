@@ -94,16 +94,21 @@ vscode {{ . | quote }}
 {{ end -}}
 EOF
 
+{{- if .isWork }}
 # strip the com.apple.quarantine xattr from newly created files under
 # /opt/homebrew/bin and /opt/homebrew/Caskroom while brew installs packages,
-# so Gatekeeper doesn't block freshly installed binaries/apps. Only runs if
-# dequarantine-watch is already deployed (it may not exist yet on a
+# so Gatekeeper doesn't block freshly installed binaries/apps. Only done on
+# work machines (see run_onchange_after_sudo_xattr_nopasswd.sh.tmpl). Only
+# runs if dequarantine-watch is already deployed (it may not exist yet on a
 # first-time bootstrap, before chezmoi has written ~/.local/bin).
 if command -v dequarantine-watch >/dev/null 2>&1; then
     dequarantine-watch -w /opt/homebrew/bin -w /opt/homebrew/Caskroom -- brew bundle install --file="$brewfile"
 else
     brew bundle install --file="$brewfile"
 fi
+{{- else }}
+brew bundle install --file="$brewfile"
+{{- end }}
 
 {{ range $packagesPorts }}
 #sudo port install -N {{ . }}
