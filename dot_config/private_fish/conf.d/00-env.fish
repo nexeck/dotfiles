@@ -6,7 +6,12 @@ if command -qa micro
     set -gx VISUAL micro
 end
 
-fish_add_path --global "$HOME/.local/bin"
-fish_add_path --global "/opt/local/bin"
-fish_add_path --global "/opt/local/sbin"
-fish_add_path --global "$HOME/.foundry/bin"
+# Extra PATH entries are shared with zsh/bash by calling the same
+# dot_config/shell/path.sh - edit its extra_paths.txt, not this file, to
+# add/remove entries.
+set -l path_script "$HOME/.config/shell/path.sh"
+if test -f "$path_script"
+    for dir in (sh "$path_script" --print-extra-paths)
+        fish_add_path --global $dir
+    end
+end

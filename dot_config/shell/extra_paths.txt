@@ -1,0 +1,14 @@
+# Extra PATH entries shared by fish, zsh, and bash (see path.sh for the
+# zsh/bash loader and private_fish/conf.d/00-env.fish for the fish one).
+# One entry per line. $HOME and $HOMEBREW_PREFIX are expanded by each
+# shell's loader; blank lines and lines starting with # are ignored.
+# Missing directories are skipped.
+$HOME/.local/bin
+/opt/local/bin
+/opt/local/sbin
+$HOME/.foundry/bin
+$HOMEBREW_PREFIX/opt/curl/bin
+$HOMEBREW_PREFIX/opt/libpq/bin
+$HOMEBREW_PREFIX/opt/uutils-coreutils/libexec/uubin
+$HOMEBREW_PREFIX/opt/uutils-diffutils/libexec/uubin
+$HOMEBREW_PREFIX/opt/uutils-findutils/libexec/uubin

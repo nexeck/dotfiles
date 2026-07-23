@@ -6,10 +6,3 @@ if test -f /opt/homebrew/bin/brew
 else if test -f /usr/local/bin/brew
     eval (/usr/local/bin/brew shellenv)
 end
-
-if set -q HOMEBREW_PREFIX
-    fish_add_path --global "$HOMEBREW_PREFIX/opt/libpq/bin"
-    fish_add_path --global "$HOMEBREW_PREFIX/opt/uutils-coreutils/libexec/uubin"
-    fish_add_path --global "$HOMEBREW_PREFIX/opt/uutils-diffutils/libexec/uubin"
-    fish_add_path --global "$HOMEBREW_PREFIX/opt/uutils-findutils/libexec/uubin"
-end
