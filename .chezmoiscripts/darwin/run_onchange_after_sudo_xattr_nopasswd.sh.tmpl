@@ -1,0 +1,23 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+# Allow removing the com.apple.quarantine xattr without a password prompt, so
+# the watchexec-based dequarantine LaunchAgents (see
+# private_Library/private_LaunchAgents/executable_com.watchexec.homebrew-bin-dequarantine.plist.tmpl)
+# can run unattended in the background.
+sudoers_file="/etc/sudoers.d/xattr-dequarantine"
+tmp_file="$(mktemp)"
+trap 'rm -f "$tmp_file"' EXIT
+
+cat > "$tmp_file" <<'EOF'
+%admin ALL=(root) NOPASSWD: /usr/bin/xattr -d com.apple.quarantine *, /usr/bin/xattr -dr com.apple.quarantine *
+EOF
+
+if ! sudo cmp -s "$tmp_file" "$sudoers_file" 2>/dev/null; then
+    echo "Installing $sudoers_file..."
+    sudo visudo -c -f "$tmp_file"
+    sudo install -m 0440 -o root -g wheel "$tmp_file" "$sudoers_file"
+fi
+{{ end -}}

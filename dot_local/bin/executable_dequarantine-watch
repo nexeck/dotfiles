@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+#
+# dequarantine-watch: run COMMAND while watching one or more paths for newly
+# created files/directories and stripping the macOS com.apple.quarantine
+# xattr from them as they appear. Useful for wrapping installers (Homebrew,
+# etc.) that link unsigned/unnotarized binaries which would otherwise be
+# blocked by Gatekeeper the first time they run.
+#
+# Usage:
+#   dequarantine-watch -w PATH [-w PATH ...] -- COMMAND [ARGS...]
+#
+# Requires: watchexec, xattr (both macOS-only concerns). If either is
+# missing, COMMAND is just run directly with no watching.
+
+set -euo pipefail
+
+watch_paths=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -w)
+            watch_paths+=("$2")
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "dequarantine-watch: unexpected argument: $1" >&2
+            exit 64
+            ;;
+    esac
+done
+
+if [[ ${#watch_paths[@]} -eq 0 ]]; then
+    echo "dequarantine-watch: at least one -w PATH is required" >&2
+    exit 64
+fi
+
+if [[ $# -eq 0 ]]; then
+    echo "dequarantine-watch: a command to run is required after --" >&2
+    exit 64
+fi
+
+if ! command -v watchexec >/dev/null 2>&1 || ! command -v xattr >/dev/null 2>&1; then
+    echo "dequarantine-watch: watchexec and/or xattr not found, running command without dequarantine watching" >&2
+    exec "$@"
+fi
+
+# strip the quarantine xattr from every newly created file; recurse (-r) for
+# directories (e.g. a Caskroom entry), single-file (-d) otherwise
+dequarantine_script='while IFS= read -r line; do f="${line#create:}"; [ -e "$f" ] || continue; if [ -d "$f" ]; then sudo xattr -dr com.apple.quarantine "$f" 2>/dev/null; else xattr -p com.apple.quarantine "$f" >/dev/null 2>&1 && sudo xattr -d com.apple.quarantine "$f"; fi; done'
+
+watchexec_args=(--fs-events create --emit-events-to stdio --shell bash)
+for p in "${watch_paths[@]}"; do
+    watchexec_args+=(-w "$p")
+done
+
+watchexec "${watchexec_args[@]}" -- "$dequarantine_script" &
+watchexec_pid=$!
+
+cleanup() {
+    kill "$watchexec_pid" 2>/dev/null || true
+    wait "$watchexec_pid" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+# give watchexec a moment to set up its filesystem watches before the
+# wrapped command starts creating files
+sleep 1
+
+"$@"
