@@ -1,6 +1,9 @@
 #!/usr/bin/env fish
 
 function update --description "Update"
+    # authenticate the sudo session upfront so later sudo calls don't prompt mid-run
+    sudo -v
+
     if command -qa brew
         brew update
         brew upgrade

@@ -1,12 +1,12 @@
 packages:
   vscode:
     all:
-      - editorconfig.editorconfig
-      - astral-sh.ty
-      - charliermarsh.ruff
-      - ms-python.python
-      - ms-toolsai.datawrangler
-      - ms-toolsai.jupyter
+    #   - editorconfig.editorconfig
+    #   - astral-sh.ty
+    #   - charliermarsh.ruff
+    #   - ms-python.python
+    #   - ms-toolsai.datawrangler
+    #   - ms-toolsai.jupyter
   darwin:
     all:
       taps:
@@ -66,8 +66,13 @@ packages:
       ports:
         - curl +ares
     work:
+      brews:
+        - watchexec
       casks:
         - firefox
+        - github
+        - github-copilot-app
+        - copilot-cli
     personal:
       casks:
         - bambu-studio

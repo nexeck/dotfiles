@@ -3,11 +3,32 @@
 
 set -eufo pipefail
 
-{{ $packagesTaps := .packages.darwin.all.taps }}
-{{ $packagesBrews := .packages.darwin.all.brews }}
-{{ $packagesCasks := .packages.darwin.all.casks }}
-{{ $packagesPorts := .packages.darwin.all.ports }}
-{{ $packagesVscode := .packages.vscode.all }}
+# authenticate the sudo session upfront so later sudo calls (e.g. port install) don't prompt mid-script
+sudo -v
+
+{{ $packagesTaps := list }}
+{{ $packagesBrews := list }}
+{{ $packagesCasks := list }}
+{{ $packagesPorts := list }}
+{{ $packagesVscode := list }}
+
+{{- if hasKey .packages.darwin "all" -}}
+    {{- if hasKey .packages.darwin.all "taps" -}}
+        {{- $packagesTaps = concat $packagesTaps .packages.darwin.all.taps -}}
+    {{- end -}}
+    {{- if hasKey .packages.darwin.all "brews" -}}
+        {{- $packagesBrews = concat $packagesBrews .packages.darwin.all.brews -}}
+    {{- end -}}
+    {{- if hasKey .packages.darwin.all "casks" -}}
+        {{- $packagesCasks = concat $packagesCasks .packages.darwin.all.casks -}}
+    {{- end -}}
+    {{- if hasKey .packages.darwin.all "ports" -}}
+        {{- $packagesPorts = concat $packagesPorts .packages.darwin.all.ports -}}
+    {{- end -}}
+{{- end -}}
+{{- if and (hasKey .packages.vscode "all") .packages.vscode.all -}}
+    {{- $packagesVscode = concat $packagesVscode .packages.vscode.all -}}
+{{- end -}}
 
 {{- if .isWork -}}
     {{- if hasKey .packages.darwin "work" -}}
@@ -48,8 +69,13 @@ set -eufo pipefail
     {{- end -}}
 {{- end -}}
 
-brew bundle cleanup --install --force --file=/dev/stdin <<EOF
-cask_args require_sha: true
+# write the Brewfile to a temp file (rather than piping via /dev/stdin)
+# so we can also feed it through dequarantine-watch below without having to
+# duplicate this templated block.
+brewfile=$(mktemp)
+trap 'rm -f "$brewfile"' EXIT
+
+cat > "$brewfile" <<EOF
 {{ range $packagesTaps }}
 {{- if kindIs "map" . -}}
 tap {{ .name | quote }}, trusted: true{{ if hasKey . "url" }}, {{ .url | quote }}{{ end }}
@@ -68,8 +94,19 @@ vscode {{ . | quote }}
 {{ end -}}
 EOF
 
+# strip the com.apple.quarantine xattr from newly created files under
+# /opt/homebrew/bin and /opt/homebrew/Caskroom while brew installs packages,
+# so Gatekeeper doesn't block freshly installed binaries/apps. Only runs if
+# dequarantine-watch is already deployed (it may not exist yet on a
+# first-time bootstrap, before chezmoi has written ~/.local/bin).
+if command -v dequarantine-watch >/dev/null 2>&1; then
+    dequarantine-watch -w /opt/homebrew/bin -w /opt/homebrew/Caskroom -- brew bundle install --file="$brewfile"
+else
+    brew bundle install --file="$brewfile"
+fi
+
 {{ range $packagesPorts }}
-sudo port install -N {{ . }}
+#sudo port install -N {{ . }}
 {{- end }}
 
 {{ end -}}
