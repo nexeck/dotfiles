@@ -1,3 +1,3 @@
 if command -qa op; and status is-interactive
-    op completion fish | source
+    __gen_completions op (command -s op) op completion fish
 end

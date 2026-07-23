@@ -14,14 +14,16 @@
 # emits POSIX `export VAR="value"` lines that both zsh and bash (and this
 # script, run under sh) can eval directly.
 export HOMEBREW_NO_ANALYTICS=1
-if [ -x /opt/homebrew/bin/brew ]; then
+if [ -n "${HOMEBREW_PREFIX:-}" ]; then
+    :
+elif [ -x /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x /usr/local/bin/brew ]; then
     eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# Resolve extra_paths.txt (expanding $HOME/$HOMEBREW_PREFIX, skipping
-# comments/blank lines/missing dirs), acting on each dir as we read it:
+# Resolve extra_paths.txt (expanding a leading $HOME or $HOMEBREW_PREFIX,
+# skipping comments/blank lines/missing dirs), acting on each dir as we read it:
 # either print it (--print-extra-paths, for fish) or prepend it to PATH.
 # NOTE: deliberately not accumulated into a variable and split later -
 # zsh doesn't word-split unquoted variables the way sh/bash do, so that
@@ -42,7 +44,18 @@ if [ -r "$_extra_paths" ]; then
         case "$_line" in
             ''|'#'*) continue ;;
         esac
-        eval "_dir=\"$_line\""
+        case "$_line" in
+            '$HOME'/*)
+                _dir="$HOME/${_line#'$HOME/'}"
+                ;;
+            '$HOMEBREW_PREFIX'/*)
+                [ -n "${HOMEBREW_PREFIX:-}" ] || continue
+                _dir="$HOMEBREW_PREFIX/${_line#'$HOMEBREW_PREFIX/'}"
+                ;;
+            *)
+                _dir="$_line"
+                ;;
+        esac
         if [ -d "$_dir" ]; then
             if [ "$_print_only" = 1 ]; then
                 printf '%s\n' "$_dir"

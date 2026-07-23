@@ -1,3 +1,5 @@
+set -gx MISE_FISH_AUTO_ACTIVATE 0
+
 if command -qa mise
     if test "$VSCODE_RESOLVING_ENVIRONMENT" = 1
         mise activate fish --shims | source
