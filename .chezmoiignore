@@ -9,5 +9,7 @@ Library/*
 key.txt.age
 README.md
 AGENT.md
+docs
+scripts
 security-baseline.mobileconfig
 .agent
