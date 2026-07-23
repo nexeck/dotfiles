@@ -47,9 +47,16 @@ if ! command -v watchexec >/dev/null 2>&1 || ! command -v xattr >/dev/null 2>&1;
     exec "$@"
 fi
 
+dequarantine_helper=/usr/local/libexec/dequarantine-homebrew
+if [[ ! -x "$dequarantine_helper" ]]; then
+    echo "dequarantine-watch: $dequarantine_helper not found, running command without dequarantine watching" >&2
+    exec "$@"
+fi
+
 # strip the quarantine xattr from every newly created file; recurse (-r) for
-# directories (e.g. a Caskroom entry), single-file (-d) otherwise
-dequarantine_script='while IFS= read -r line; do f="${line#create:}"; [ -e "$f" ] || continue; if [ -d "$f" ]; then sudo xattr -dr com.apple.quarantine "$f" 2>/dev/null; else xattr -p com.apple.quarantine "$f" >/dev/null 2>&1 && sudo xattr -d com.apple.quarantine "$f"; fi; done'
+# directories (e.g. a Caskroom entry), without granting unrestricted xattr
+# access through sudoers.
+dequarantine_script='while IFS= read -r line; do f="${line#create:}"; [ -e "$f" ] || [ -L "$f" ] || continue; sudo -n /usr/local/libexec/dequarantine-homebrew "$f"; done'
 
 watchexec_args=(--fs-events create --emit-events-to stdio --shell bash)
 for p in "${watch_paths[@]}"; do
