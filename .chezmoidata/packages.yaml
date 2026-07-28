@@ -76,7 +76,6 @@ packages:
     personal:
       casks:
         - bambu-studio
-        - comet
         - deezer
         - ledger-wallet
         - portfolioperformance
