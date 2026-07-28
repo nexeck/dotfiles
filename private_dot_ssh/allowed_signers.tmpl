@@ -1,2 +1,4 @@
-{{ protonPass "pass://Personal/GIT Config/email" }} namespaces="git" {{ protonPass "pass://Personal/SSH Key Personal/public key" }}
-{{ protonPass "pass://Work/GIT Config/email" }} namespaces="git" {{ protonPass "pass://Work/SSH Key Work/public key" }}
+{{ protonPass "pass://Personal/GIT Config/email" | trim }} namespaces="git" {{ protonPass "pass://Personal/SSH Key Personal/public key" | trim }}
+{{- if .isWork }}
+{{ protonPass "pass://Work/GIT Config/email" | trim }} namespaces="git" {{ protonPass "pass://Work/SSH Key Work/public key" | trim }}
+{{- end }}
