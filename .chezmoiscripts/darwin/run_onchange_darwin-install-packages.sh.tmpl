@@ -67,11 +67,15 @@ fi
 brew bundle install --file="$brewfile"
 {{- end }}
 
-{{ range $packagesPorts }}
-# MacPorts is intentionally retained, but MDM currently prevents bootstrapping
-# it. Keep the desired ports declared so installation can be re-enabled here
-# when that restriction is lifted.
-# sudo port install -N {{ . }}
-{{- end }}
+{{ if $packagesPorts }}
+# MacPorts packages are only installed when `port` is already present. MDM
+# currently prevents bootstrapping MacPorts itself, so this only applies once
+# it has been installed some other way.
+if command -v port >/dev/null 2>&1; then
+{{ range $packagesPorts -}}
+    sudo port install -N {{ . }}
+{{ end -}}
+fi
+{{ end -}}
 
 {{ end -}}

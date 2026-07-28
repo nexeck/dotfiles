@@ -25,5 +25,3 @@ fi
 if command -v tldr >/dev/null 2>&1; then
     tldr --update
 fi
-
-sudo softwareupdate --install --all
