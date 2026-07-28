@@ -21,5 +21,18 @@
   "ruff.importStrategy": "fromEnvironment",
   "python.analysis.typeCheckingMode": "strict",
   "github.copilot.nextEditSuggestions.enabled": true,
-  "terminal.integrated.stickyScroll.enabled": false
+  "terminal.integrated.stickyScroll.enabled": false,
+  "chat.tools.urls.autoApprove": {
+    "https://code.visualstudio.com": true,
+    "https://github.com/microsoft/vscode/wiki/*": true,
+    "https://github.com": {
+      "approveRequest": false,
+      "approveResponse": true
+    }
+  },
+  "chat.mcp.gallery.enabled": true,
+  "chat.agent.sandbox.enabled": "off",
+  "chat.tools.terminal.terminalProfile.osx": {
+    "path": "bash"
+  }
 }
