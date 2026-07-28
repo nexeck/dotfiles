@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 #
-# dequarantine-watch: run COMMAND while watching one or more paths for newly
-# created files/directories and stripping the macOS com.apple.quarantine
-# xattr from them as they appear. Useful for wrapping installers (Homebrew,
-# etc.) that link unsigned/unnotarized binaries which would otherwise be
-# blocked by Gatekeeper the first time they run.
+# brew-dequarantine-watch: run COMMAND while watching one or more paths for
+# newly created files/directories and stripping the macOS com.apple.quarantine
+# xattr from them as they appear. Written for wrapping Homebrew, which links
+# unsigned/unnotarized binaries that Gatekeeper would otherwise block the first
+# time they run.
 #
 # Usage:
-#   dequarantine-watch -w PATH [-w PATH ...] -- COMMAND [ARGS...]
+#   brew-dequarantine-watch -w PATH [-w PATH ...] -- COMMAND [ARGS...]
+#
+# NOT a general-purpose tool despite the -w flag: the actual xattr removal is
+# done by the root-owned helper /usr/local/libexec/dequarantine-homebrew (see
+# .chezmoiscripts/darwin/run_onchange_after_sudo_xattr_nopasswd.sh.tmpl), which
+# deliberately only accepts paths under /opt/homebrew/bin and
+# /opt/homebrew/Caskroom. Watching anything else silently does nothing.
 #
 # Requires: watchexec, xattr (both macOS-only concerns). If either is
 # missing, COMMAND is just run directly with no watching.
@@ -26,30 +32,30 @@ while [[ $# -gt 0 ]]; do
             break
             ;;
         *)
-            echo "dequarantine-watch: unexpected argument: $1" >&2
+            echo "brew-dequarantine-watch: unexpected argument: $1" >&2
             exit 64
             ;;
     esac
 done
 
 if [[ ${#watch_paths[@]} -eq 0 ]]; then
-    echo "dequarantine-watch: at least one -w PATH is required" >&2
+    echo "brew-dequarantine-watch: at least one -w PATH is required" >&2
     exit 64
 fi
 
 if [[ $# -eq 0 ]]; then
-    echo "dequarantine-watch: a command to run is required after --" >&2
+    echo "brew-dequarantine-watch: a command to run is required after --" >&2
     exit 64
 fi
 
 if ! command -v watchexec >/dev/null 2>&1 || ! command -v xattr >/dev/null 2>&1; then
-    echo "dequarantine-watch: watchexec and/or xattr not found, running command without dequarantine watching" >&2
+    echo "brew-dequarantine-watch: watchexec and/or xattr not found, running command without dequarantine watching" >&2
     exec "$@"
 fi
 
 dequarantine_helper=/usr/local/libexec/dequarantine-homebrew
 if [[ ! -x "$dequarantine_helper" ]]; then
-    echo "dequarantine-watch: $dequarantine_helper not found, running command without dequarantine watching" >&2
+    echo "brew-dequarantine-watch: $dequarantine_helper not found, running command without dequarantine watching" >&2
     exec "$@"
 fi
 
