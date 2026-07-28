@@ -1,4 +1,4 @@
-{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+{{- if eq .chezmoi.os "darwin" -}}
 #!/usr/bin/env bash
 
 set -eufo pipefail
@@ -10,8 +10,6 @@ elif [ -x /opt/homebrew/bin/fish ]; then
     fish_path="/opt/homebrew/bin/fish"
 elif [ -x /usr/local/bin/fish ]; then
     fish_path="/usr/local/bin/fish"
-elif [ -x /usr/bin/fish ]; then
-    fish_path="/usr/bin/fish"
 else
     echo "Fish shell not found, skipping shell change."
     exit 0
@@ -22,12 +20,7 @@ if ! grep -qxF "${fish_path}" /etc/shells; then
     echo "${fish_path}" | sudo tee -a /etc/shells
 fi
 
-# Determine current user shell
-if [ "$(uname)" = "Darwin" ]; then
-    current_shell=$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')
-else
-    current_shell=$(getent passwd "$USER" | cut -d: -f7)
-fi
+current_shell=$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')
 
 # Change shell only if different
 if [ "${current_shell}" != "${fish_path}" ]; then

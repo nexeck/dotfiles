@@ -1,4 +1,4 @@
-{{- if and (or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin")) .isPersonal -}}
+{{- if and (eq .chezmoi.os "darwin") .isPersonal -}}
 #!/usr/bin/env bash
 
 set -eufo pipefail
