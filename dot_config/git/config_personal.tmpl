@@ -1,10 +1,13 @@
 [user]
-	name = {{ protonPass "pass://Personal/GIT Config/name" }}
-	email = {{ protonPass "pass://Personal/GIT Config/email" }}
-	signingkey = {{ protonPass "pass://Personal/GIT Config/signingkey" }}
+	name = {{ protonPass "pass://Personal/GIT Config/name" | trim }}
+	email = {{ protonPass "pass://Personal/GIT Config/email" | trim }}
+	signingkey = {{ protonPass "pass://Personal/GIT Config/signingkey" | trim }}
 
 [core]
-  sshCommand = "ssh -i ~/.ssh/id_ed25519_personal.pub -F /dev/null"
+  # IdentitiesOnly instead of `-F /dev/null`: the latter would discard all of
+  # ~/.ssh/config (IdentityAgent, ControlMaster, ServerAliveInterval, ...) for
+  # every git connection, while still restricting git to this one key.
+  sshCommand = "ssh -i ~/.ssh/id_ed25519_personal.pub -o IdentitiesOnly=yes"
 
 [commit]
 	# https://help.github.com/articles/signing-commits-using-gpg/
