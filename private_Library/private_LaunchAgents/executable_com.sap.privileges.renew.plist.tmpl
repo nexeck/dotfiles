@@ -1,17 +1,36 @@
+{{- /* Privileges.app is optional, so render nothing at all when it is absent.
+      When it IS installed, resolve its CLI via $PATH (the app ships an
+      /etc/paths.d entry for /Applications/Privileges.app/Contents/MacOS) - but
+      abort loudly instead of rendering an empty <string></string>, which would
+      produce a plist launchd refuses to load. */ -}}
 {{- if stat "/Applications/Privileges.app" -}}
+{{- $privilegesCLI := lookPath "privilegesCLI" -}}
+{{- if not $privilegesCLI }}{{ fail "privilegesCLI not found in $PATH - Privileges.app is installed, so its /etc/paths.d entry is missing" }}{{ end -}}
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
     <string>com.sap.privileges.renew</string>
+    {{- /* launchd's StartInterval is strictly fixed, so the randomised delay is
+          done in the job itself: renew, then sleep a random 600-13200s
+          (10-220 min) and exit. KeepAlive relaunches immediately, so the gap
+          between two renewals is re-randomised after every run. The upper
+          bound stays below the 240 min for which `--add` grants admin rights,
+          leaving a 20 min safety margin so the grant never lapses. The CLI
+          path is passed as $0 rather than interpolated into the shell string,
+          so no quoting or escaping of the path is needed. `;` instead of `&&`
+          on purpose: even if the renewal fails we still sleep, otherwise a
+          persistent failure would turn into a hot restart loop. */}}
     <key>ProgramArguments</key>
     <array>
-        <string>{{ lookPath "privilegesCLI" }}</string>
-        <string>--add</string>
+        <string>/bin/sh</string>
+        <string>-c</string>
+        <string>"$0" --add; exec /bin/sleep "$(/usr/bin/jot -r 1 600 13200)"</string>
+        <string>{{ $privilegesCLI }}</string>
     </array>
-    <key>StartInterval</key>
-    <integer>300</integer>
+    <key>KeepAlive</key>
+    <true/>
     <key>RunAtLoad</key>
     <true/>
     <key>StandardOutPath</key>

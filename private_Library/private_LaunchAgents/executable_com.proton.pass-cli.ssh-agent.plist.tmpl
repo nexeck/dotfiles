@@ -1,3 +1,10 @@
+{{- /* The Homebrew prefix differs between Intel and Apple Silicon, so resolve
+      pass-cli via $PATH - but abort loudly instead of rendering an empty
+      <string></string>, which would produce a plist launchd refuses to load.
+      .install-password-manager.sh installs pass-cli from the read-source-state
+      hook, so an empty result here means that hook did not do its job. */ -}}
+{{- $passCLI := lookPath "pass-cli" -}}
+{{- if not $passCLI }}{{ fail "pass-cli not found in $PATH - .install-password-manager.sh should have installed it" }}{{ end -}}
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -6,7 +13,7 @@
     <string>com.proton.pass-cli.ssh-agent</string>
     <key>ProgramArguments</key>
     <array>
-        <string>{{ lookPath "pass-cli" }}</string>
+        <string>{{ $passCLI }}</string>
         <string>ssh-agent</string>
         <string>start</string>
     </array>
