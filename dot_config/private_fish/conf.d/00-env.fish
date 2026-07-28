@@ -24,12 +24,15 @@ if command -qa micro
     set -gx VISUAL micro
 end
 
-# Extra PATH entries are shared with zsh/bash by calling the same
-# dot_config/shell/path.sh - edit its extra_paths.txt, not this file, to
-# add/remove entries.
-set -l path_script "$HOME/.config/shell/path.sh"
-if test -f "$path_script"
-    for dir in (sh "$path_script" --print-extra-paths)
-        fish_add_path --global $dir
+# Extra PATH entries are defined in ~/.config/shell/extra_paths.txt
+# (shared with zsh/bash via dot_config/shell/path.sh).
+set -l extra_paths "$HOME/.config/shell/extra_paths.txt"
+if test -f "$extra_paths"
+    for line in (string match -r -v '^\s*(#|$)' < "$extra_paths")
+        set -l dir (string replace '$HOME' "$HOME" -- $line)
+        set -l dir (string replace '$HOMEBREW_PREFIX' "$HOMEBREW_PREFIX" -- $dir)
+        if test -d "$dir"
+            fish_add_path --global $dir
+        end
     end
 end

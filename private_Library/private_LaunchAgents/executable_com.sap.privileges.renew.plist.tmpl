@@ -26,7 +26,7 @@
     <array>
         <string>/bin/sh</string>
         <string>-c</string>
-        <string>"$0" --add; exec /bin/sleep "$(/usr/bin/jot -r 1 600 13200)"</string>
+        <string>"$0" --add; delay=$(/usr/bin/jot -r 1 600 13200 2>/dev/null); exec /bin/sleep "${delay:-3600}"</string>
         <string>{{ $privilegesCLI }}</string>
     </array>
     <key>KeepAlive</key>
@@ -34,9 +34,9 @@
     <key>RunAtLoad</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/tmp/com.sap.privileges.renew.log</string>
+    <string>{{ .chezmoi.homeDir }}/Library/Logs/com.sap.privileges.renew.log</string>
     <key>StandardErrorPath</key>
-    <string>/tmp/com.sap.privileges.renew.log</string>
+    <string>{{ .chezmoi.homeDir }}/Library/Logs/com.sap.privileges.renew.log</string>
 </dict>
 </plist>
 {{- end -}}

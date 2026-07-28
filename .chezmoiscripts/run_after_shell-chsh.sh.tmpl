@@ -4,15 +4,16 @@
 set -eufo pipefail
 
 # Find fish path dynamically at runtime
-if command -v fish >/dev/null 2>&1; then
-    fish_path=$(command -v fish)
-elif [ -x /opt/homebrew/bin/fish ]; then
-    fish_path="/opt/homebrew/bin/fish"
-elif [ -x /usr/local/bin/fish ]; then
-    fish_path="/usr/local/bin/fish"
-else
-    echo "Fish shell not found, skipping shell change."
-    exit 0
+fish_path=$(command -v fish || true)
+if [ -z "${fish_path}" ]; then
+    if [ -x /opt/homebrew/bin/fish ]; then
+        fish_path="/opt/homebrew/bin/fish"
+    elif [ -x /usr/local/bin/fish ]; then
+        fish_path="/usr/local/bin/fish"
+    else
+        echo "Fish shell not found, skipping shell change."
+        exit 0
+    fi
 fi
 
 # Add fish to /etc/shells if not already present
