@@ -2,10 +2,6 @@
 
 macOS dotfiles managed with [chezmoi](https://www.chezmoi.io/). No Linux support.
 
-## Architecture
-
-/.agent/prompts/ - Contains the main AI prompt files
-
 ## Profiles
 
 Two mutually exclusive profiles, set during `chezmoi init`:
@@ -28,16 +24,20 @@ Profile flags are used in `.tmpl` files and `.chezmoiignore` to conditionally in
 dot_config/
   git/                            # Git config with profile-conditional includes, Proton Pass signing
   private_fish/                   # Fish shell: config, functions, conf.d drop-ins
-  ...                             # starship, mise, atuin, zed, curl, nushell
+  shell/                          # POSIX PATH/env setup shared by zsh + bash (and read by fish)
+  ...                             # starship, atuin, zed, curl
+dot_local/bin/                    # Standalone scripts, shared by every shell via $PATH
 private_dot_ssh/                  # SSH config, allowed_signers, public keys from Proton Pass
-private_dot_aws/                  # AWS config (age-encrypted)
+private_Library/                  # LaunchAgents, nushell, VS Code settings
 ```
 
 ## Secrets Management
 
 **Proton Pass** — SSH keys, git signing keys, git identity (name/email). Retrieved in templates via `protonPass "pass://..."`. The `pass-cli` is auto-installed by a pre-read-source-state hook (`.install-password-manager.sh`).
 
-**Age encryption** — Used for files that must exist without Proton Pass (AWS config, Databricks config). Encrypted files end in `.age`. The age identity key is decrypted from `key.txt.age` by a `run_once_before` script.
+Always pipe `protonPass` through `trim` — it returns values with a trailing newline, which silently corrupts line-oriented files such as `~/.ssh/allowed_signers`.
+
+**Age encryption** — Used for files that must exist without Proton Pass. Encrypted files end in `.age`. The age identity key is decrypted from `key.txt.age` by a `run_once_before` script.
 
 ## Package Management
 
@@ -87,9 +87,10 @@ Packages are installed by `.chezmoiscripts/darwin/run_onchange_darwin-install-pa
 
 ### Project
 
-- **Shell:** Fish is the primary shell. Nushell configs also exist.
-- **Editors:** Zed (primary), VS Code. Both configured in this repo.
+- **Shell:** Fish is the primary shell; zsh and bash share PATH/env setup via `dot_config/shell/path.sh`. Nushell configs also exist.
+- **Editors:** `EDITOR`, `git core.editor` and `chezmoi edit` all use micro. Zed and VS Code settings are managed here too.
 - **Git style:** Conventional commits (`feat:`, `fix:`, `chore:`). Changelog generated with git-cliff.
+- **Shared logic:** anything needed by more than one shell belongs in `dot_local/bin/` as a plain script rather than being reimplemented per shell (e.g. `update`, `brew-dequarantine-watch`). Exceptions are things that must mutate the calling shell's own state, such as `load_env_vars`.
 
 ## Common Tasks
 
