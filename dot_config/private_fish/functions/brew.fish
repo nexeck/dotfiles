@@ -1,19 +1,19 @@
 #!/usr/bin/env fish
 
-# Only deployed on work machines (see .chezmoiignore) - the dequarantine-watch
-# dance is only needed there (see
+# Only deployed on work machines (see .chezmoiignore) - the dequarantine dance
+# is only needed there (see
 # .chezmoiscripts/darwin/run_onchange_darwin-install-packages.sh.tmpl).
 function brew --description 'brew wrapper that dequarantines newly installed files while it runs'
     # only bother with the dequarantine watcher for subcommands that
     # actually install/link new files under $HOMEBREW_PREFIX; xattr/quarantine
     # is macOS-only, so skip entirely if the helper isn't available
     if not contains -- "$argv[1]" install reinstall upgrade bundle
-        or not command -qa dequarantine-watch
+        or not command -qa brew-dequarantine-watch
         or not set -q HOMEBREW_PREFIX
         command brew $argv
         return $status
     end
 
-    dequarantine-watch -w "$HOMEBREW_PREFIX/bin" -w "$HOMEBREW_PREFIX/Caskroom" -- brew $argv
+    brew-dequarantine-watch -w "$HOMEBREW_PREFIX/bin" -w "$HOMEBREW_PREFIX/Caskroom" -- brew $argv
     return $status
 end
