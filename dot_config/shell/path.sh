@@ -3,7 +3,7 @@
 #   1. Sourced from ~/.zprofile (zsh) and ~/.bashrc (bash) - sets PATH,
 #      HOMEBREW_* vars, and activates mise for that shell.
 #   2. Run directly as `sh path.sh --print-extra-paths` (see
-#      private_fish/conf.d/10-homebrew.fish) - just prints the resolved
+#      private_fish/conf.d/00-env.fish) - just prints the resolved
 #      extra PATH dirs, one per line, so fish can fish_add_path them too.
 #
 # The actual list of extra PATH dirs lives in extra_paths.txt - edit that
@@ -76,12 +76,36 @@ unset -v _print_only
 unset -f _path_prepend
 export PATH
 
+# Agent/tty env shared with fish (mirrors private_fish/conf.d/00-env.fish).
+# Needed here too: git's core.sshCommand pins an identity, so SSH signing and
+# auth from zsh/bash would otherwise find no agent at all.
+export SSH_AUTH_SOCK="$HOME/.ssh/proton-pass-agent.sock"
+if [ -t 0 ]; then
+    GPG_TTY=$(tty 2>/dev/null) && export GPG_TTY
+fi
+
+if command -v micro >/dev/null 2>&1; then
+    export EDITOR=micro
+    export VISUAL=micro
+fi
+
 # mise: activate per-shell so its shims/env hooks also work outside fish
-# (fish has its own `mise activate fish` in conf.d/20-mise.fish).
+# (fish has its own `mise activate fish` in conf.d/20-mise.fish). Interactive
+# shells get the full activation incl. directory-based version switching;
+# non-interactive ones only get shims, mirroring what 20-mise.fish does.
 if command -v mise >/dev/null 2>&1; then
-    if [ -n "$ZSH_VERSION" ]; then
-        eval "$(mise activate zsh)"
-    elif [ -n "$BASH_VERSION" ]; then
-        eval "$(mise activate bash)"
+    if [ -n "${ZSH_VERSION:-}" ]; then
+        _mise_shell=zsh
+    elif [ -n "${BASH_VERSION:-}" ]; then
+        _mise_shell=bash
+    else
+        _mise_shell=
     fi
+    if [ -n "$_mise_shell" ]; then
+        case $- in
+            *i*) eval "$(mise activate "$_mise_shell")" ;;
+            *) eval "$(mise activate "$_mise_shell" --shims)" ;;
+        esac
+    fi
+    unset _mise_shell
 fi
