@@ -1,0 +1,25 @@
+# Targets to delete from the destination directory on every `chezmoi apply`.
+#
+# chezmoi does NOT remove a deployed file just because its source entry was
+# deleted (only `exact_` directories behave that way), so entries that were
+# dropped or renamed have to be listed here to actually disappear from $HOME.
+#
+# These can be pruned again once every machine has applied them at least once.
+
+# Dead fish drop-ins: op/scw are not installed and were never in packages.yaml,
+# uv is an unconfigured mise shim whose completion generator only ever produced
+# empty output.
+.config/fish/conf.d/op.fish
+.config/fish/conf.d/scw.fish
+.config/fish/conf.d/uv.fish
+
+# `update` is now a single shared script in ~/.local/bin instead of one
+# implementation per shell.
+.config/fish/functions/update.fish
+
+# Renamed to brew-dequarantine-watch, since it only ever worked for Homebrew.
+.local/bin/dequarantine-watch
+
+# Merged into the single com.user.proxy-certs agent.
+Library/LaunchAgents/com.user.node-use-system-ca.plist
+Library/LaunchAgents/com.user.uv-system-certs.plist
