@@ -4,7 +4,7 @@
 [includeIf "hasconfig:remote.*.url:git@github.com:JH-JDS/**"]
 	path = ~/.config/git/config_work
 
-[includeIf "hasconfig:remote.*.url:git@github.com:jh-jds/**"]
+[includeIf "hasconfig:remote.*.url:git@github.com:*_jhdev/**"]
 	path = ~/.config/git/config_work
 
 [apply]

@@ -1,3 +1,11 @@
+Host github.com
+  # ControlPath is keyed on user+host+port, NOT the identity file, so
+  # multiplexing here would silently reuse whichever GitHub account
+  # authenticated first for ALL repos (personal/work), bypassing the
+  # per-repo core.sshCommand identity selection in includeIf blocks.
+  ControlMaster         no
+  ControlPath           none
+
 Host *
   ServerAliveInterval   60
   ServerAliveCountMax   30
