@@ -19,14 +19,19 @@
           bound stays below the 240 min for which `--add` grants admin rights,
           leaving a 20 min safety margin so the grant never lapses. The CLI
           path is passed as $0 rather than interpolated into the shell string,
-          so no quoting or escaping of the path is needed. `;` instead of `&&`
-          on purpose: even if the renewal fails we still sleep, otherwise a
-          persistent failure would turn into a hot restart loop. */}}
+          so no quoting or escaping of the path is needed. RunAtLoad fires
+          right at login, before PrivilegesDaemon's on-demand XPC service is
+          necessarily reachable and before the console user is always fully
+          registered, so `--add` is retried a few times (5s apart) rather than
+          given up on after a single attempt. The retry loop still always
+          falls through to the sleep afterwards - even once retries are
+          exhausted - so a persistent failure never turns into a hot restart
+          loop. */}}
     <key>ProgramArguments</key>
     <array>
         <string>/bin/sh</string>
         <string>-c</string>
-        <string>"$0" --add; delay=$(/usr/bin/jot -r 1 600 13200 2>/dev/null); exec /bin/sleep "${delay:-3600}"</string>
+        <string>i=0; until "$0" --add || [ "$i" -ge 5 ]; do i=$((i + 1)); /bin/sleep 5; done; delay=$(/usr/bin/jot -r 1 600 13200 2>/dev/null); exec /bin/sleep "${delay:-3600}"</string>
         <string>{{ $privilegesCLI }}</string>
     </array>
     <key>KeepAlive</key>
