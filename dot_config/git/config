@@ -52,8 +52,10 @@
 	prune = true
 
 [help]
-	# Automatically correct and execute mistyped commands after 1 second
-	autocorrect = 10
+	# Offer the corrected command instead of running it. The numeric form
+	# (e.g. 10 = 1 second) *executes* git's guess after that delay, which turns
+	# a typo into an unintended command.
+	autocorrect = prompt
 
 [merge]
 	# Include summaries of merged commits in newly created merge commit messages
@@ -108,14 +110,8 @@
     hunk-header-line-number-style = "#067a00"
     hunk-header-style = file line-number syntax
 
-[difftool "nbdime"]
-	cmd = git-nbdifftool diff \"$LOCAL\" \"$REMOTE\" \"$BASE\"
-
 [difftool]
 	prompt = false
-
-[mergetool "nbdime"]
-	cmd = git-nbmergetool merge \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
 
 [mergetool]
 	prompt = false
