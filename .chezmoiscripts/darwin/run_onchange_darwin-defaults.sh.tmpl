@@ -3,20 +3,21 @@
 
 set -eufo pipefail
 
-{{ $defaults := .darwin_defaults.defaults.all }}
-
-{{- if .isWork -}}
-    {{- if hasKey .darwin_defaults.defaults "work" -}}
-        {{- $defaults = concat $defaults .darwin_defaults.defaults.work -}}
-    {{- end -}}
-{{- end -}}
+{{/* Personal machines only - work machines get their desktop settings from
+     MDM, and fighting that would just flip-flop on every compliance sweep.
+     Consequently there is no `work` key in darwin_defaults.yaml and no
+     profile merge here; add one only if this guard is ever relaxed. */}}
+{{- $defaults := .darwin_defaults.defaults.all }}
 
 {{ range $default := $defaults -}}
 defaults {{ if and (hasKey $default "currentHost") ($default.currentHost) }}-currentHost{{ end }} write {{ $default.domain }} {{ $default.element }} -{{ $default.type }} {{ $default.value }}
 {{ end -}}
 
+# `|| true`: killall exits non-zero when the app is not running, which would
+# abort this script under `set -e`. run_onchange would then never record a
+# successful run and would retry - and fail - on every apply.
 {{ range $app := .darwin_defaults.kill_to_apply -}}
-killall {{ $app }}
+killall {{ $app }} 2>/dev/null || true
 {{ end -}}
 
 {{ end -}}
