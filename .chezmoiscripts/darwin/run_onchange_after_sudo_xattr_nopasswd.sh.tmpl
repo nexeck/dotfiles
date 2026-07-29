@@ -49,7 +49,11 @@ fi
 EOF
 
 cat > "$sudoers_tmp" <<'EOF'
-%admin ALL=(root) NOPASSWD: /usr/local/libexec/dequarantine-homebrew *
+# Scoped to this user rather than %admin: every admin account on the machine
+# would otherwise get passwordless root invocation of the wrapper, and
+# /opt/homebrew is user-writable, so that would hand any local admin a
+# Gatekeeper-quarantine strip primitive.
+{{ .chezmoi.username }} ALL=(root) NOPASSWD: /usr/local/libexec/dequarantine-homebrew *
 EOF
 
 sudo install -d -m 0755 -o root -g wheel "$(dirname "$wrapper")"

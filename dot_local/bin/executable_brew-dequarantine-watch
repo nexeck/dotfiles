@@ -59,12 +59,31 @@ if [[ ! -x "$dequarantine_helper" ]]; then
     exec "$@"
 fi
 
+# A throwaway directory that is watched alongside the real targets and used
+# purely as a readiness canary: once the handler reports having seen a file
+# created in here, watchexec's filesystem watches are demonstrably live.
+# `pwd -P` resolves it through /var -> /private/var, so the path we pass to
+# watchexec is the same physical path fsevents reports back.
+probe_root=$(cd "$(mktemp -d)" && pwd -P)
+probe_dir="$probe_root/watch"
+ready_file="$probe_root/ready"   # deliberately outside probe_dir: it must not
+                                 # itself generate events in the watched tree
+mkdir -p "$probe_dir"
+export DQ_READY_FILE="$ready_file"
+
 # strip the quarantine xattr from every newly created file; recurse (-r) for
 # directories (e.g. a Caskroom entry), without granting unrestricted xattr
-# access through sudoers.
-dequarantine_script='while IFS= read -r line; do f="${line#create:}"; [ -e "$f" ] || [ -L "$f" ] || continue; sudo -n /usr/local/libexec/dequarantine-homebrew "$f"; done'
+# access through sudoers. Readiness-canary files are recognised by their
+# distinctive basename rather than by their directory: macOS reports fs events
+# under the resolved /private/var path, so matching on the temp directory
+# prefix is unreliable. They are only acknowledged, never passed to the helper
+# (which would reject them anyway, being outside the allowed Homebrew
+# prefixes).
+dequarantine_script='while IFS= read -r line; do f="${line#create:}"; case "${f##*/}" in .dq-probe-*) : > "$DQ_READY_FILE"; continue ;; esac; [ -e "$f" ] || [ -L "$f" ] || continue; sudo -n /usr/local/libexec/dequarantine-homebrew "$f"; done'
 
-watchexec_args=(--fs-events create --emit-events-to stdio --shell bash)
+# --quiet: suppress watchexec's own "[Running: ...]" banners, which would
+# otherwise be interleaved into the wrapped command's output.
+watchexec_args=(--quiet --fs-events create --emit-events-to stdio --shell bash -w "$probe_dir")
 for p in "${watch_paths[@]}"; do
     watchexec_args+=(-w "$p")
 done
@@ -75,11 +94,32 @@ watchexec_pid=$!
 cleanup() {
     kill "$watchexec_pid" 2>/dev/null || true
     wait "$watchexec_pid" 2>/dev/null || true
+    rm -rf "$probe_root"
 }
 trap cleanup EXIT
 
-# give watchexec a moment to set up its filesystem watches before the
-# wrapped command starts creating files
-sleep 1
+# Wait for the watches to actually be established before letting the wrapped
+# command start creating files. A fixed `sleep 1` used to guess at this and
+# genuinely lost the race sometimes: Homebrew executes freshly linked binaries
+# immediately (e.g. to generate shell completions), and a still-quarantined
+# binary executed non-interactively is SIGKILLed with no Gatekeeper prompt.
+wait_for_watcher() {
+    local deadline=$((SECONDS + 15))
+    local n=0
+    while ((SECONDS < deadline)); do
+        : > "$probe_dir/.dq-probe-$((n++))"
+        for _ in 1 2 3 4 5; do
+            [[ -e "$ready_file" ]] && return 0
+            sleep 0.1
+        done
+        # watcher died - no point polling until the deadline
+        kill -0 "$watchexec_pid" 2>/dev/null || return 1
+    done
+    return 1
+}
+
+if ! wait_for_watcher; then
+    echo "brew-dequarantine-watch: watcher did not become ready in time, continuing anyway" >&2
+fi
 
 "$@"

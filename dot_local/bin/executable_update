@@ -12,9 +12,25 @@ set -eu
 # somewhere in the middle of a long run.
 sudo -v
 
+# Route brew through the dequarantine watcher when it is available. The fish
+# `brew` function only wraps interactive fish, so without this every cask
+# upgraded from here would keep its com.apple.quarantine xattr - exactly what
+# the watcher exists to prevent.
+brew_run() {
+    if command -v brew-dequarantine-watch >/dev/null 2>&1 &&
+        [ -x /usr/local/libexec/dequarantine-homebrew ]; then
+        brew-dequarantine-watch \
+            -w "${HOMEBREW_PREFIX:-/opt/homebrew}/bin" \
+            -w "${HOMEBREW_PREFIX:-/opt/homebrew}/Caskroom" \
+            -- brew "$@"
+    else
+        brew "$@"
+    fi
+}
+
 if command -v brew >/dev/null 2>&1; then
     brew update
-    brew upgrade
+    brew_run upgrade
 fi
 
 if command -v port >/dev/null 2>&1; then
