@@ -14,8 +14,10 @@ Profile flags are used in `.tmpl` files and `.chezmoiignore` to conditionally in
 ## Repository Structure
 
 ```
-.chezmoi.yaml.tmpl                # chezmoi config (age encryption, profile prompts)
+.chezmoi.yaml.tmpl                # chezmoi config (profile prompt, work umask)
+.chezmoiversion                   # Minimum chezmoi version required by these templates
 .chezmoiignore                    # Profile-conditional ignores
+.chezmoiremove                    # Targets to delete from $HOME (deleted/renamed entries)
 .chezmoidata/
   packages.yaml                   # All packages: homebrew taps/brews/casks, macports, vscode extensions
   darwin_defaults.yaml            # macOS defaults (dock, finder, terminal)
@@ -37,7 +39,7 @@ private_Library/                  # LaunchAgents, nushell, VS Code settings
 
 Always pipe `protonPass` through `trim` — it returns values with a trailing newline, which silently corrupts line-oriented files such as `~/.ssh/allowed_signers`.
 
-**Age encryption** — Used for files that must exist without Proton Pass. Encrypted files end in `.age`. The age identity key is decrypted from `key.txt.age` by a `run_once_before` script.
+Proton Pass is the *only* secrets backend. There is deliberately no `encryption:` block and no age identity: nothing is stored encrypted at rest, so there is no key to distribute or rotate. If an `encrypted_` entry is ever genuinely needed, add the `encryption:`/`age:` config back together with a `run_once_before` script that provisions the identity.
 
 ## Package Management
 
@@ -69,11 +71,20 @@ packages:
 
 Packages are installed by `.chezmoiscripts/darwin/run_onchange_darwin-install-packages.sh.tmpl`.
 
+A tap entry is either a plain string or a map with `name`, optional `url` and optional `trusted`. `trusted: true` suppresses Homebrew's third-party-tap confirmation and is opt-in per tap — never set it wholesale.
+
+```yaml
+taps:
+  - some/tap # untrusted: brew will ask
+  - name: protonpass/tap
+    trusted: true
+```
+
 ## Conventions
 
 ### chezmoi
 
-- **File prefixes:** `dot_` → `.`, `private_` → mode 0700/0600, `encrypted_` → age-decrypted, `exact_` → removes unmanaged files in directory.
+- **File prefixes:** `dot_` → `.`, `private_` → mode 0700/0600, `exact_` → removes unmanaged files in directory.
 - **Templates:** `.tmpl` suffix enables Go template rendering. Use `{{ if .isWork }}` / `{{ if .isPersonal }}` guards for profile-conditional content. A template that resolves to only whitespace is skipped entirely (useful for conditional scripts).
 - **Scripts** are in `.chezmoiscripts/` and follow this naming:
   - `run_` — runs on every `chezmoi apply`
@@ -90,13 +101,14 @@ Packages are installed by `.chezmoiscripts/darwin/run_onchange_darwin-install-pa
 - **Shell:** Fish is the primary shell; zsh and bash share PATH/env setup via `dot_config/shell/path.sh`. Nushell configs also exist.
 - **Editors:** `EDITOR`, `git core.editor` and `chezmoi edit` all use micro. Zed and VS Code settings are managed here too.
 - **Git style:** Conventional commits (`feat:`, `fix:`, `chore:`). Changelog generated with git-cliff.
-- **Shared logic:** anything needed by more than one shell belongs in `dot_local/bin/` as a plain script rather than being reimplemented per shell (e.g. `update`, `brew-dequarantine-watch`). Exceptions are things that must mutate the calling shell's own state, such as `load_env_vars`.
+- **Shared logic:** anything needed by more than one shell belongs in `dot_local/bin/` as a plain script rather than being reimplemented per shell (e.g. `update`, `brew-dequarantine-watch`, `dotfiles-doctor`). Exceptions are things that must mutate the calling shell's own state, such as `load_env_vars`.
+- **Health checks:** `dotfiles-doctor` is the place for runtime checks. Keep it fast (~1s) and read-only by default — never call `chezmoi status` from it, which costs ~10s because it resolves every `protonPass` lookup. Put repairs behind `--fix`.
 
 ## Common Tasks
 
 **Add a new brew/cask/tap:** Edit `.chezmoidata/packages.yaml` under the appropriate profile section.
 
-**Add a new dotfile:** Use `chezmoi add <file>`. For secrets, use `chezmoi add --encrypt <file>`.
+**Add a new dotfile:** Use `chezmoi add <file>`. Secrets must not be committed — reference them from Proton Pass in a `.tmpl` instead.
 
 **Add a profile-conditional file:** Create the `.tmpl` file and add an ignore rule in `.chezmoiignore` for the other profile.
 
