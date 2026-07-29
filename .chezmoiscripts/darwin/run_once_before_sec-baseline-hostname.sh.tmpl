@@ -12,7 +12,14 @@ if [ -z "${serial_number}" ]; then
 fi
 
 if [ -n "${serial_number}" ]; then
-    readonly hostname="MacOS-${serial_number}"
+    # Derive the name from a truncated SHA-256 of the serial rather than the
+    # serial itself: ComputerName/LocalHostName are broadcast over mDNS (and
+    # the NetBIOS name over SMB), so using the raw serial would advertise a
+    # unique, permanent hardware identifier to every network the machine joins.
+    # The digest keeps the useful properties - stable across reboots/reinstalls
+    # and unique per machine - without being reversible to the serial.
+    machine_id=$(printf '%s' "${serial_number}" | shasum -a 256 | cut -c1-8)
+    readonly hostname="MacOS-${machine_id}"
 
     sudo scutil --set ComputerName "${hostname}"
     sudo scutil --set HostName "${hostname}"
