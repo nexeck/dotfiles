@@ -1,0 +1,256 @@
+#!/bin/sh
+# dotfiles-doctor: check that the moving parts of this dotfiles setup are
+# actually working. Deliberately checks the things that have genuinely broken
+# here before - the SSH agent socket, a corrupted allowed_signers, LaunchAgents
+# that were written but never reloaded, the Homebrew dequarantine sudo rule -
+# rather than restating what `chezmoi doctor` already covers.
+#
+# Read-only by default. `--fix` additionally attempts the safe repairs
+# (currently: restarting the Proton Pass SSH agent).
+#
+# Usage: dotfiles-doctor [--fix]
+
+set -u
+
+fix=0
+case "${1:-}" in
+    --fix) fix=1 ;;
+    "") ;;
+    *) echo "usage: dotfiles-doctor [--fix]" >&2; exit 64 ;;
+esac
+
+if [ -t 1 ]; then
+    c_ok=$(printf '\033[32m'); c_warn=$(printf '\033[33m')
+    c_bad=$(printf '\033[31m'); c_hdr=$(printf '\033[1m'); c_off=$(printf '\033[0m')
+else
+    c_ok=''; c_warn=''; c_bad=''; c_hdr=''; c_off=''
+fi
+
+fails=0
+warns=0
+
+section() { printf '\n%s%s%s\n' "$c_hdr" "$1" "$c_off"; }
+ok()      { printf '  %sok%s    %s\n' "$c_ok" "$c_off" "$1"; }
+warn()    { printf '  %swarn%s  %s\n' "$c_warn" "$c_off" "$1"; warns=$((warns + 1)); }
+bad()     { printf '  %sFAIL%s  %s\n' "$c_bad" "$c_off" "$1"; fails=$((fails + 1)); }
+note()    { printf '        %s\n' "$1"; }
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+uid=$(id -u)
+
+# Which profile is this? `.isWork` comes from the chezmoi config data, so this
+# does not render any template and costs nothing (no Proton Pass lookups).
+is_work=false
+if have chezmoi; then
+    is_work=$(chezmoi execute-template '{{ .isWork }}' 2>/dev/null || echo false)
+fi
+
+# --------------------------------------------------------------------------
+section "SSH agent (Proton Pass)"
+
+sock=${SSH_AUTH_SOCK:-$HOME/.ssh/proton-pass-agent.sock}
+if [ -S "$sock" ]; then
+    ok "socket present: $sock"
+else
+    bad "socket missing: $sock"
+fi
+
+agent_label=com.proton.pass-cli.ssh-agent
+agent_reachable() { ssh-add -l >/dev/null 2>&1 || [ "$?" -eq 1 ]; }
+
+ssh-add -l >/dev/null 2>&1
+case $? in
+    0) ok "agent reachable, keys loaded" ;;
+    1)
+        warn "agent reachable but no keys loaded"
+        note "check the key item: pass-cli ssh-agent debug"
+        ;;
+    *)
+        if [ "$fix" -eq 1 ]; then
+            note "agent not reachable - restarting $agent_label ..."
+            launchctl kickstart -k "gui/$uid/$agent_label" >/dev/null 2>&1
+            sleep 2
+            if agent_reachable; then
+                ok "agent was unreachable, restarted successfully"
+            else
+                bad "agent still not reachable after restart"
+                note "investigate with: pass-cli ssh-agent debug"
+            fi
+        else
+            bad "agent not reachable (absent or stale socket)"
+            note "re-run with --fix to restart the agent"
+        fi
+        ;;
+esac
+
+# --------------------------------------------------------------------------
+section "Proton Pass session"
+
+if have pass-cli; then
+    ok "pass-cli installed"
+    if pass-cli test >/dev/null 2>&1; then
+        ok "session valid"
+    else
+        bad "session invalid - every chezmoi command will fail to render"
+        note "fix with: pass-cli login"
+    fi
+else
+    bad "pass-cli not installed - templates cannot resolve secrets"
+fi
+
+# --------------------------------------------------------------------------
+section "Git identity and commit signing"
+
+signers=$(git config --get gpg.ssh.allowedSignersFile 2>/dev/null || true)
+case "$signers" in
+    "~"*) signers="$HOME${signers#\~}" ;;
+esac
+
+if [ -z "$signers" ]; then
+    warn "gpg.ssh.allowedSignersFile is not configured"
+elif [ ! -s "$signers" ]; then
+    bad "allowed_signers missing or empty: $signers"
+else
+    # Each line must be "<principal> namespaces=... <keytype> <keydata>".
+    # A truncated line (the classic symptom of an untrimmed protonPass value)
+    # makes ssh-keygen reject the whole file with "missing key".
+    malformed=$(awk 'NF && $0 !~ /^#/ && NF < 3 { c++ } END { print c + 0 }' "$signers")
+    # grep -c already prints 0 when nothing matches; `|| echo 0` would append a
+    # second line and break the numeric comparison below.
+    unresolved=$(grep -c 'pass://' "$signers" 2>/dev/null || true)
+    if [ "$malformed" -gt 0 ]; then
+        bad "allowed_signers has $malformed malformed line(s): $signers"
+        note "usually an untrimmed protonPass value - pipe it through | trim"
+    elif [ "$unresolved" -gt 0 ]; then
+        bad "allowed_signers contains unresolved pass:// references"
+    else
+        ok "allowed_signers looks well-formed ($(grep -c . "$signers") signer(s))"
+    fi
+fi
+
+for f in "$HOME/.config/git/config_personal" "$HOME/.config/git/config_work"; do
+    [ -f "$f" ] || continue
+    if grep -q 'pass://' "$f" 2>/dev/null; then
+        bad "unresolved pass:// reference in $f"
+    else
+        ok "resolved: ${f#"$HOME"/}"
+    fi
+done
+
+# The real proof that signing works end to end.
+src=$(chezmoi source-path 2>/dev/null || true)
+if [ -n "$src" ] && git -C "$src" rev-parse --git-dir >/dev/null 2>&1; then
+    if git -C "$src" log -1 --show-signature 2>&1 | grep -q 'Good "git" signature'; then
+        ok "last commit in the dotfiles repo verifies"
+    else
+        warn "last commit in the dotfiles repo does not verify as signed"
+        note "check with: git -C $src log -1 --show-signature"
+    fi
+fi
+
+# --------------------------------------------------------------------------
+section "LaunchAgents"
+
+check_agent() {
+    if launchctl print "gui/$uid/$1" >/dev/null 2>&1; then
+        ok "loaded: $1"
+    else
+        bad "not loaded: $1"
+        note "load it: launchctl bootstrap gui/$uid ~/Library/LaunchAgents/$1.plist"
+    fi
+}
+
+check_agent "$agent_label"
+if [ "$is_work" = "true" ]; then
+    check_agent com.user.proxy-certs
+    [ -d /Applications/Privileges.app ] && check_agent com.sap.privileges.renew
+fi
+
+# --------------------------------------------------------------------------
+section "Shell environment"
+
+for tool in fish starship mise micro chezmoi; do
+    if have "$tool"; then ok "$tool on PATH"; else warn "$tool not found on PATH"; fi
+done
+
+case ":$PATH:" in
+    *":$HOME/.local/bin:"*) ok "~/.local/bin is on PATH" ;;
+    *) bad "~/.local/bin is NOT on PATH - shared scripts are unreachable" ;;
+esac
+
+if [ "${EDITOR:-}" = "micro" ]; then
+    ok "EDITOR=micro"
+else
+    warn "EDITOR is '${EDITOR:-<unset>}', expected micro"
+fi
+
+# --------------------------------------------------------------------------
+if [ "$is_work" = "true" ]; then
+    section "Work profile: Homebrew dequarantine"
+
+    helper=/usr/local/libexec/dequarantine-homebrew
+    if [ -x "$helper" ]; then
+        ok "root helper installed: $helper"
+        # The helper exits 0 for a path that does not exist, so this probes the
+        # sudoers rule without touching anything.
+        if sudo -n "$helper" /opt/homebrew/bin/.dotfiles-doctor-probe >/dev/null 2>&1; then
+            ok "passwordless sudo rule works"
+        else
+            bad "sudo rule missing or broken (/etc/sudoers.d/xattr-dequarantine)"
+            note "re-run: chezmoi apply"
+        fi
+    else
+        warn "dequarantine helper not installed: $helper"
+    fi
+
+    have watchexec && ok "watchexec installed" || warn "watchexec not installed - dequarantine falls back to no watching"
+
+    section "Work profile: TLS interception workarounds"
+    for var in NODE_USE_SYSTEM_CA UV_SYSTEM_CERTS; do
+        val=$(launchctl getenv "$var" 2>/dev/null || true)
+        if [ -n "$val" ]; then
+            ok "$var=$val (GUI session)"
+        else
+            warn "$var not set in the GUI session - com.user.proxy-certs may not have run"
+        fi
+    done
+fi
+
+# --------------------------------------------------------------------------
+section "chezmoi"
+
+if have chezmoi; then
+    ok "chezmoi $(chezmoi --version | awk '{print $3}' | tr -d ',')"
+
+    # Has .chezmoi.yaml.tmpl drifted from the deployed config? chezmoi only
+    # reports this on expensive commands, and `chezmoi status` would cost ~10s
+    # here because it renders every protonPass lookup - so render just the
+    # config template and compare.
+    deployed="$HOME/.config/chezmoi/chezmoi.yaml"
+    if [ -n "${src:-}" ] && [ -f "$src/.chezmoi.yaml.tmpl" ] && [ -f "$deployed" ]; then
+        rendered=$(chezmoi execute-template --init --promptBool "isWork=$is_work" \
+            < "$src/.chezmoi.yaml.tmpl" 2>/dev/null || true)
+        if [ -n "$rendered" ] && ! printf '%s\n' "$rendered" | diff -q - "$deployed" >/dev/null 2>&1; then
+            warn "config file template has drifted from $deployed"
+            note "regenerate with: chezmoi init"
+        else
+            ok "deployed config matches .chezmoi.yaml.tmpl"
+        fi
+    fi
+else
+    bad "chezmoi not installed"
+fi
+
+# --------------------------------------------------------------------------
+printf '\n'
+if [ "$fails" -gt 0 ]; then
+    printf '%s%d failure(s)%s, %d warning(s)\n' "$c_bad" "$fails" "$c_off" "$warns"
+    exit 1
+elif [ "$warns" -gt 0 ]; then
+    printf '%sno failures%s, %d warning(s)\n' "$c_ok" "$c_off" "$warns"
+    exit 0
+else
+    printf '%sall checks passed%s\n' "$c_ok" "$c_off"
+    exit 0
+fi
