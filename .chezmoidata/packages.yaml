@@ -10,8 +10,13 @@ packages:
   darwin:
     all:
       taps:
-        - tw93/tap
-        - protonpass/tap
+        # A tap may be given either as a plain string or as a map with
+        # `name`, optional `url` and optional `trusted`. `trusted: true`
+        # suppresses Homebrew's confirmation prompt for a third-party tap, so
+        # it is opt-in per tap rather than blanket-applied: only set it for
+        # taps whose maintainers you have actually decided to trust.
+        - name: protonpass/tap
+          trusted: true
       brews:
         - age
         - age-plugin-yubikey
@@ -49,7 +54,7 @@ packages:
         - pinentry-mac
         - wget
         - ripgrep
-        - tw93/tap/mole
+        - mole
         - protonpass/tap/pass-cli
       casks:
         - font-cascadia-code-nf

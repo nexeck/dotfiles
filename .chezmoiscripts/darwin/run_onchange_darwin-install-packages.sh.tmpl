@@ -35,9 +35,9 @@ trap 'rm -f "$brewfile"' EXIT
 cat > "$brewfile" <<EOF
 {{ range $packagesTaps }}
 {{- if kindIs "map" . -}}
-tap {{ .name | quote }}, trusted: true{{ if hasKey . "url" }}, {{ .url | quote }}{{ end }}
+tap {{ .name | quote }}{{ if hasKey . "url" }}, {{ .url | quote }}{{ end }}{{ if .trusted }}, trusted: true{{ end }}
 {{ else -}}
-tap {{ . | quote }}, trusted: true
+tap {{ . | quote }}
 {{ end }}
 {{- end }}
 {{ range $packagesBrews -}}
