@@ -9,6 +9,20 @@
 # The actual list of extra PATH dirs lives in extra_paths.txt - edit that
 # file, not this one, to add/remove entries.
 
+_print_only=0
+[ "${1:-}" = "--print-extra-paths" ] && _print_only=1
+
+# Idempotence guard: ~/.zprofile (login shells) and ~/.zshrc (every interactive
+# shell) both source this file, so a login+interactive zsh would otherwise run
+# `mise activate` twice and install its hooks twice. Deliberately a plain,
+# non-exported variable: child shells must still get their own activation,
+# since shell hooks are not inherited through the environment.
+if [ "$_print_only" = 0 ] && [ -n "${__shell_path_sh_sourced:-}" ]; then
+    unset -v _print_only
+    return 0 2>/dev/null || exit 0
+fi
+__shell_path_sh_sourced=1
+
 # Homebrew: sets up HOMEBREW_PREFIX (used below to resolve extra_paths.txt)
 # and puts brew's bin/sbin on PATH. `brew shellenv` (no shell argument)
 # emits POSIX `export VAR="value"` lines that both zsh and bash (and this
@@ -28,9 +42,6 @@ fi
 # NOTE: deliberately not accumulated into a variable and split later -
 # zsh doesn't word-split unquoted variables the way sh/bash do, so that
 # approach silently produced one broken multi-line PATH entry in zsh.
-_print_only=0
-[ "${1:-}" = "--print-extra-paths" ] && _print_only=1
-
 _path_prepend() {
     case ":$PATH:" in
         *":$1:"*) ;;
@@ -79,7 +90,21 @@ export PATH
 # Agent/tty env shared with fish (mirrors private_fish/conf.d/00-env.fish).
 # Needed here too: git's core.sshCommand pins an identity, so SSH signing and
 # auth from zsh/bash would otherwise find no agent at all.
+#
+# Exported unconditionally on purpose: the socket is created by the pass-cli
+# LaunchAgent at login and may not exist yet when an early shell starts. ssh
+# resolves SSH_AUTH_SOCK at connect time, so a path that appears moments later
+# still works, whereas a conditional export would leave this shell agent-less
+# permanently. Warn instead, and only when someone is there to read it.
 export SSH_AUTH_SOCK="$HOME/.ssh/proton-pass-agent.sock"
+if [ ! -S "$SSH_AUTH_SOCK" ]; then
+    case $- in
+        *i*)
+            echo "warning: Proton Pass SSH agent socket missing ($SSH_AUTH_SOCK)" >&2
+            echo "         ssh and commit signing will fail. Diagnose with: dotfiles-doctor" >&2
+            ;;
+    esac
+fi
 if [ -t 0 ]; then
     GPG_TTY=$(tty 2>/dev/null) && export GPG_TTY
 fi
