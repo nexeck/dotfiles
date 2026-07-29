@@ -9,7 +9,6 @@ Library/*
 Library/LaunchAgents/com.sap.privileges.renew.plist
 Library/LaunchAgents/com.user.proxy-certs.plist
 {{- end }}
-key.txt.age
 README.md
 AGENT.md
 docs

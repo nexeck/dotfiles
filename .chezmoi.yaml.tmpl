@@ -1,11 +1,11 @@
 {{ $isWork := promptBoolOnce . "isWork" "Is this a work machine?" }}
 {{ $isPersonal := not $isWork }}
 
-
-encryption: "age"
-age:
-  identity: "{{ .chezmoi.destDir }}/.config/chezmoi/key.txt"
-  recipient: "age1vccxcl76hwl29ppule9894krl3lux7qavzt3dvtzt9dty9yv9uts4ylh6w"
+{{- /* No `encryption:` block on purpose. Every secret in this repository comes
+      from Proton Pass at template-render time, so there is nothing to encrypt
+      at rest and no age identity to distribute. Reintroduce it (together with
+      a run_once_ script that provisions the identity) only if an `encrypted_`
+      entry is ever actually needed. */}}
 
 {{- if $isWork }}
 # Pin the umask chezmoi uses to compute target file/dir permissions, instead
