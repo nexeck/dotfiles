@@ -17,6 +17,10 @@
 # implementation per shell.
 .config/fish/functions/update.fish
 
+# Dead code: the completion cache helper lost its last caller when the op/scw/uv
+# drop-ins above were removed.
+.config/fish/functions/__gen_completions.fish
+
 # Renamed to brew-dequarantine-watch, since it only ever worked for Homebrew.
 .local/bin/dequarantine-watch
 
