@@ -19,7 +19,6 @@ packages:
           trusted: true
       brews:
         - age
-        - age-plugin-yubikey
         - atuin
         - bash
         - bat
