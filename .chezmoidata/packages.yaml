@@ -56,13 +56,14 @@ packages:
         - ripgrep
         - mole
         - protonpass/tap/pass-cli
+        - rustnet
       casks:
         - font-cascadia-code-nf
         - comet
         - google-chrome
         - proton-pass
         - visual-studio-code
-        #- zed
+        - zed
         - obsidian
         - yubico-authenticator
         - fido2-manage
