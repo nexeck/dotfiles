@@ -1,32 +1,32 @@
 if status is-interactive
     if command -qa bat
-        abbr cat bat
+        abbr --add cat bat
     end
 
     if command -qa dust
-        abbr du dust
+        abbr --add du dust
     end
 
     if command -qa eza
-        abbr -a ls 'eza'
-        abbr -a lg 'eza --long --all --header --git --git-repos'
-        abbr -a l 'eza --long --all --header'
-        abbr -a la 'eza --all'
-        abbr -a ll 'eza --long'
-        abbr -a lt 'eza --long --tree'
+        abbr --add ls 'eza'
+        abbr --add lg 'eza --long --all --header --git --git-repos'
+        abbr --add l 'eza --long --all --header'
+        abbr --add la 'eza --all'
+        abbr --add ll 'eza --long'
+        abbr --add lt 'eza --long --tree'
     end
 
     if command -qa bottom
-        abbr top btm
-        abbr htop btm
+        abbr --add top btm
+        abbr --add htop btm
     end
 
     if command -qa viddy
-        abbr watch viddy
+        abbr --add watch viddy
     end
 
     if command -qa ripgrep
-        abbr grep rg
+        abbr --add grep rg
     end
 end
 
