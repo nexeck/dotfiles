@@ -72,6 +72,30 @@ and run `chezmoi apply`.
 `AGENT.md` documents the conventions in detail (naming prefixes, script phases,
 where shared logic belongs). Read it before making structural changes.
 
+## CLI Tools
+
+Modern command-line replacements and extensions configured in this dotfiles repository:
+
+| Tool | Replaces / Enhances | Description |
+| ---- | ------------------- | ----------- |
+| [`bat`](https://github.com/sharkdp/bat) | `cat` | Syntax-highlighting file viewer with Git integration |
+| [`eza`](https://github.com/eza-community/eza) | `ls` | Feature-rich file lister with colors, icons, Git status, and tree view |
+| [`fd`](https://github.com/sharkdp/fd) | `find` | Fast, user-friendly file finder respecting `.gitignore` |
+| [`ripgrep`](https://github.com/BurntSushi/ripgrep) (`rg`) | `grep` | Fast line-oriented recursive search tool |
+| [`dust`](https://github.com/bootandy/dust) | `du` | Visual disk space usage analyzer in the terminal |
+| [`bottom`](https://github.com/ClementTsang/bottom) (`btm`) | `top` / `htop` | Graphical system and process monitor TUI |
+| [`zoxide`](https://github.com/ajeetdsouza/zoxide) | `cd` | Smart directory navigation based on frecency |
+| [`atuin`](https://github.com/atuinsh/atuin) | Shell history (`Ctrl+R`) | SQLite-backed shell history search with sync |
+| [`starship`](https://github.com/starship/starship) | Shell prompt | Fast, customizable cross-shell prompt |
+| [`viddy`](https://github.com/sachaos/viddy) | `watch` | Modern command watch with diffs and time-machine backscroll |
+| [`tlrc`](https://github.com/tldr-pages/tlrc) | `man` | Fast Rust client for `tldr` simplified man pages |
+| [`micro`](https://github.com/zyedidia/micro) | `nano` | Intuitive terminal text editor with mouse support & standard shortcuts |
+| [`git-delta`](https://github.com/dandavison/delta) | `git diff` | Syntax-highlighting pager for Git diffs |
+| [`uutils-coreutils`](https://github.com/uutils/coreutils) | GNU `coreutils` | Rust rewrite of GNU core utilities (`cat`, `ls`, `cp`, `mv`, etc.) |
+| [`uutils-diffutils`](https://github.com/uutils/diffutils) | GNU `diffutils` | Rust rewrite of GNU diff utilities (`diff`, `cmp`, etc.) |
+| [`uutils-findutils`](https://github.com/uutils/findutils) | GNU `findutils` | Rust rewrite of GNU find utilities (`find`, `xargs`, etc.) |
+
+
 ## Secrets
 
 Nothing secret is stored in this repository. Every secret is fetched from
