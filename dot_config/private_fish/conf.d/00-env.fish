@@ -46,8 +46,16 @@ end
 # drifts from it. HOMEBREW_PREFIX is exported above, so the subprocess inherits
 # it and skips its own `brew shellenv`.
 set -l path_sh "$HOME/.config/shell/path.sh"
-if test -r "$path_sh"
-    for dir in (sh "$path_sh" --print-extra-paths)
-        fish_add_path --global $dir
+set -l extra_paths_file "$HOME/.config/shell/extra_paths.txt"
+set -l path_cache "$HOME/.cache/fish/extra_paths.fish"
+
+if test -r "$path_sh"; and test -r "$extra_paths_file"
+    if not test -f "$path_cache"; or test "$extra_paths_file" -nt "$path_cache"; or test "$path_sh" -nt "$path_cache"
+        mkdir -p (path dirname "$path_cache")
+        echo "# Auto-generated extra paths cache" > "$path_cache"
+        for dir in (sh "$path_sh" --print-extra-paths)
+            echo "fish_add_path --global $dir" >> "$path_cache"
+        end
     end
+    source "$path_cache"
 end

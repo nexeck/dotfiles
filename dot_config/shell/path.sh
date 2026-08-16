@@ -24,16 +24,24 @@ fi
 __shell_path_sh_sourced=1
 
 # Homebrew: sets up HOMEBREW_PREFIX (used below to resolve extra_paths.txt)
-# and puts brew's bin/sbin on PATH. `brew shellenv` (no shell argument)
-# emits POSIX `export VAR="value"` lines that both zsh and bash (and this
-# script, run under sh) can eval directly.
+# and puts brew's bin/sbin on PATH. Caches shellenv to avoid ~35ms ruby overhead
+# on every interactive zsh/bash startup.
 export HOMEBREW_NO_ANALYTICS=1
 if [ -n "${HOMEBREW_PREFIX:-}" ]; then
     :
-elif [ -x /opt/homebrew/bin/brew ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [ -x /usr/local/bin/brew ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
+elif [ -x /opt/homebrew/bin/brew ] || [ -x /usr/local/bin/brew ]; then
+    if [ -x /opt/homebrew/bin/brew ]; then
+        _brew_bin="/opt/homebrew/bin/brew"
+    else
+        _brew_bin="/usr/local/bin/brew"
+    fi
+    _brew_cache="$HOME/.cache/shell/brew_shellenv.sh"
+    if [ ! -f "$_brew_cache" ] || [ "$_brew_bin" -nt "$_brew_cache" ]; then
+        mkdir -p "$HOME/.cache/shell"
+        "$_brew_bin" shellenv > "$_brew_cache"
+    fi
+    . "$_brew_cache"
+    unset -v _brew_bin _brew_cache
 fi
 
 # Resolve extra_paths.txt (expanding a leading $HOME or $HOMEBREW_PREFIX,
