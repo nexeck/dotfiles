@@ -60,6 +60,7 @@ packages:
         - font-cascadia-code-nf
         - comet
         - google-chrome
+        - zen
         - proton-pass
         - visual-studio-code
         - zed
@@ -68,6 +69,7 @@ packages:
         - fido2-manage
         - ghostty
         - tabby
+        - stirling-pdf
       ports:
         - curl +ares
     work:
