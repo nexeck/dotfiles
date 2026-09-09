@@ -5,9 +5,7 @@ Library/*
 .ssh/id_ed25519_work.pub
 .config/git/config_work
 .aws/config
-.config/fish/functions/brew.fish
 Library/LaunchAgents/com.sap.privileges.renew.plist
-Library/LaunchAgents/com.user.proxy-certs.plist
 {{- end }}
 README.md
 AGENT.md

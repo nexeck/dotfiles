@@ -27,3 +27,17 @@
 # Merged into the single com.user.proxy-certs agent.
 Library/LaunchAgents/com.user.node-use-system-ca.plist
 Library/LaunchAgents/com.user.uv-system-certs.plist
+
+# Proxy CA trust is now managed centrally by Intune; the LaunchAgent that set
+# NODE_USE_SYSTEM_CA/UV_SYSTEM_CERTS via launchctl setenv is no longer needed.
+Library/LaunchAgents/com.user.proxy-certs.plist
+
+# Zscaler integration helper is removed when hasZscaler is false.
+{{- if not .hasZscaler }}
+.local/bin/zscaler-copilot-continue
+{{- end }}
+
+# IT fixed Gatekeeper's quarantine handling centrally, so the dequarantine
+# watcher and its fish wrapper are no longer needed.
+.local/bin/brew-dequarantine-watch
+.config/fish/functions/brew.fish

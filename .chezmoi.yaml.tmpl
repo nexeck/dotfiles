@@ -1,5 +1,6 @@
 {{ $isWork := promptBoolOnce . "isWork" "Is this a work machine?" }}
 {{ $isPersonal := not $isWork }}
+{{ $hasZscaler := promptBoolOnce . "hasZscaler" "Does this machine use Zscaler?" }}
 
 {{- /* No `encryption:` block on purpose. Every secret in this repository comes
       from Proton Pass at template-render time, so there is nothing to encrypt
@@ -43,3 +44,4 @@ progress: true
 data:
   isWork: {{ $isWork }}
   isPersonal: {{ $isPersonal }}
+  hasZscaler: {{ $hasZscaler }}

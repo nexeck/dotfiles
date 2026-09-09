@@ -3,14 +3,6 @@
 
 set -eufo pipefail
 
-# Make Node/Electron (used by `code --install-extension` under `brew bundle`)
-# trust the macOS system keychain (Node >= 22.15) instead of its bundled CA
-# bundle. Required behind the corporate TLS-intercepting proxy, otherwise
-# VS Code extension installs fail with certificate errors. Set explicitly here
-# so the first bootstrap works even before the login LaunchAgent
-# (com.user.proxy-certs) has set it globally.
-export NODE_USE_SYSTEM_CA=1
-
 # authenticate the sudo session upfront so later sudo calls (e.g. port install) don't prompt mid-script
 sudo -v
 
@@ -26,9 +18,7 @@ sudo -v
 {{- $packagesPorts  := concat (dig "all" "ports"  list .packages.darwin | default list) (dig $profile "ports"  list .packages.darwin | default list) -}}
 {{- $packagesVscode := concat (dig "all" list .packages.vscode | default list)          (dig $profile list .packages.vscode | default list) -}}
 
-# write the Brewfile to a temp file (rather than piping via /dev/stdin)
-# so we can also feed it through dequarantine-watch below without having to
-# duplicate this templated block.
+# write the Brewfile to a temp file rather than piping via /dev/stdin
 brewfile=$(mktemp)
 trap 'rm -f "$brewfile"' EXIT
 
@@ -51,21 +41,7 @@ vscode {{ . | quote }}
 {{ end -}}
 EOF
 
-{{- if .isWork }}
-# strip the com.apple.quarantine xattr from newly created files under
-# /opt/homebrew/bin and /opt/homebrew/Caskroom while brew installs packages,
-# so Gatekeeper doesn't block freshly installed binaries/apps. Only done on
-# work machines (see run_onchange_after_sudo_xattr_nopasswd.sh.tmpl). Only
-# runs if brew-dequarantine-watch is already deployed (it may not exist yet on
-# a first-time bootstrap, before chezmoi has written ~/.local/bin).
-if command -v brew-dequarantine-watch >/dev/null 2>&1; then
-    brew-dequarantine-watch -w /opt/homebrew/bin -w /opt/homebrew/Caskroom -- brew bundle install --file="$brewfile"
-else
-    brew bundle install --file="$brewfile"
-fi
-{{- else }}
 brew bundle install --file="$brewfile"
-{{- end }}
 
 {{ if $packagesPorts }}
 # MacPorts packages are only installed when `port` is already present. MDM

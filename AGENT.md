@@ -101,7 +101,7 @@ taps:
 - **Shell:** Fish is the primary shell; zsh and bash share PATH/env setup via `dot_config/shell/path.sh`. Nushell configs also exist.
 - **Editors:** `EDITOR`, `git core.editor` and `chezmoi edit` all use micro. Zed and VS Code settings are managed here too.
 - **Git style:** Conventional commits (`feat:`, `fix:`, `chore:`). Changelog generated with git-cliff.
-- **Shared logic:** anything needed by more than one shell belongs in `dot_local/bin/` as a plain script rather than being reimplemented per shell (e.g. `update`, `brew-dequarantine-watch`, `dotfiles-doctor`). Exceptions are things that must mutate the calling shell's own state, such as `load_env_vars`.
+- **Shared logic:** anything needed by more than one shell belongs in `dot_local/bin/` as a plain script rather than being reimplemented per shell (e.g. `update`, `dotfiles-doctor`). Exceptions are things that must mutate the calling shell's own state, such as `load_env_vars`.
 - **Health checks:** `dotfiles-doctor` is the place for runtime checks. Keep it fast (~1s) and read-only by default — never call `chezmoi status` from it, which costs ~10s because it resolves every `protonPass` lookup. Put repairs behind `--fix`.
 
 ## Common Tasks

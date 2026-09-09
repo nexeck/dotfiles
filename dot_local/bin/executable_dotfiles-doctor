@@ -2,8 +2,8 @@
 # dotfiles-doctor: check that the moving parts of this dotfiles setup are
 # actually working. Deliberately checks the things that have genuinely broken
 # here before - the SSH agent socket, a corrupted allowed_signers, LaunchAgents
-# that were written but never reloaded, the Homebrew dequarantine sudo rule -
-# rather than restating what `chezmoi doctor` already covers.
+# that were written but never reloaded - rather than restating what `chezmoi
+# doctor` already covers.
 #
 # Read-only by default. `--fix` additionally attempts the safe repairs
 # (currently: restarting the Proton Pass SSH agent).
@@ -163,7 +163,6 @@ check_agent() {
 
 check_agent "$agent_label"
 if [ "$is_work" = "true" ]; then
-    check_agent com.user.proxy-certs
     [ -d /Applications/Privileges.app ] && check_agent com.sap.privileges.renew
 fi
 
@@ -183,38 +182,6 @@ if [ "${EDITOR:-}" = "micro" ]; then
     ok "EDITOR=micro"
 else
     warn "EDITOR is '${EDITOR:-<unset>}', expected micro"
-fi
-
-# --------------------------------------------------------------------------
-if [ "$is_work" = "true" ]; then
-    section "Work profile: Homebrew dequarantine"
-
-    helper=/usr/local/libexec/dequarantine-homebrew
-    if [ -x "$helper" ]; then
-        ok "root helper installed: $helper"
-        # The helper exits 0 for a path that does not exist, so this probes the
-        # sudoers rule without touching anything.
-        if sudo -n "$helper" /opt/homebrew/bin/.dotfiles-doctor-probe >/dev/null 2>&1; then
-            ok "passwordless sudo rule works"
-        else
-            bad "sudo rule missing or broken (/etc/sudoers.d/xattr-dequarantine)"
-            note "re-run: chezmoi apply"
-        fi
-    else
-        warn "dequarantine helper not installed: $helper"
-    fi
-
-    have watchexec && ok "watchexec installed" || warn "watchexec not installed - dequarantine falls back to no watching"
-
-    section "Work profile: TLS interception workarounds"
-    for var in NODE_USE_SYSTEM_CA UV_SYSTEM_CERTS; do
-        val=$(launchctl getenv "$var" 2>/dev/null || true)
-        if [ -n "$val" ]; then
-            ok "$var=$val (GUI session)"
-        else
-            warn "$var not set in the GUI session - com.user.proxy-certs may not have run"
-        fi
-    done
 fi
 
 # --------------------------------------------------------------------------

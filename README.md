@@ -22,9 +22,11 @@ It ends up running `chezmoi init --apply`, which will:
 
 1. Ask **"Is this a work machine?"** — this choice is stored and drives every
    profile-conditional file from then on.
-2. Install `pass-cli` (Proton Pass CLI) via a pre-hook, so templates can resolve
+2. Ask **"Does this machine use Zscaler?"** — this controls the optional PKL
+  certificate export and Copilot continuation LaunchAgent.
+3. Install `pass-cli` (Proton Pass CLI) via a pre-hook, so templates can resolve
    secrets.
-3. Write the dotfiles, then run the provisioning scripts: install packages,
+4. Write the dotfiles, then run the provisioning scripts: install packages,
    apply macOS defaults, enable Touch ID for `sudo`, set the shell to fish.
 
 Expect to be prompted: several scripts need `sudo`, and Proton Pass must be
@@ -36,7 +38,7 @@ Two mutually exclusive profiles, chosen at `chezmoi init` time:
 
 | Profile  | Flag               | Used for                                                                                             |
 | -------- | ------------------ | ---------------------------------------------------------------------------------------------------- |
-| Work     | `isWork: true`     | Corporate machine: work git identity, proxy CA workarounds, Homebrew dequarantine, MDM-friendly umask |
+| Work     | `isWork: true`     | Corporate machine: work git identity, MDM-friendly umask |
 | Personal | `isPersonal: true` | Personal machine: personal git identity, macOS defaults, personal apps                               |
 
 Profile gating happens in `.chezmoiignore` and in `.tmpl` guards. Re-run
@@ -52,6 +54,16 @@ chezmoi edit <file>          # edit the source of a deployed file (opens micro)
 chezmoi add <file>           # start managing an existing file
 update                       # upgrade Homebrew, MacPorts and tldr pages
 dotfiles-doctor              # check that agent, secrets, signing and agents work
+```
+
+When enabled during init, the optional `zscaler-copilot-continue` helper checks
+every five minutes for a Zscaler/AI interstitial on `api.githubcopilot.com`,
+extracts its continuation form and submits it with `curl`. It never opens or
+controls a browser. Apply the files, then load the agent once:
+
+```sh
+chezmoi apply
+launchctl bootstrap gui/"$(id -u)" ~/Library/LaunchAgents/com.user.zscaler-copilot-continue.plist
 ```
 
 Packages are **not** installed by hand: add them to `.chezmoidata/packages.yaml`
@@ -117,9 +129,9 @@ Consequences worth knowing:
 ## Troubleshooting
 
 Start with `dotfiles-doctor` — it checks the SSH agent, the Proton Pass session,
-commit signing, `allowed_signers` integrity, LaunchAgents and (on work machines)
-the Homebrew dequarantine sudo rule, in about a second. `dotfiles-doctor --fix`
-additionally restarts the SSH agent if it is unreachable.
+commit signing, `allowed_signers` integrity and LaunchAgents, in about a
+second. `dotfiles-doctor --fix` additionally restarts the SSH agent if it is
+unreachable.
 
 **`chezmoi diff` fails or renders empty secrets**
 Proton Pass is locked or `pass-cli` is missing. Unlock the app, then run
@@ -144,11 +156,6 @@ fish caches failed command lookups. Start a new shell (`exec fish`).
 **A deleted file keeps coming back in `$HOME`**
 Removing a source entry does not delete the deployed copy. Add its
 destination-relative path to `.chezmoiremove`.
-
-**Gatekeeper kills freshly installed Homebrew binaries (work machines)**
-That is what `brew-dequarantine-watch` exists for. Verify
-`/usr/local/libexec/dequarantine-homebrew` exists and that `watchexec` is
-installed; see `scripts/repro-brew-dequarantine.sh`.
 
 ## Validating changes
 

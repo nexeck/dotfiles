@@ -17,6 +17,8 @@ packages:
         # taps whose maintainers you have actually decided to trust.
         - name: protonpass/tap
           trusted: true
+        - name: zennotes/tap
+          trusted: true
       brews:
         - age
         - atuin
@@ -70,11 +72,10 @@ packages:
         - ghostty
         - tabby
         - stirling-pdf
+        - zennotes/tap/zennotes
       ports:
         - curl +ares
     work:
-      brews:
-        - watchexec
       casks:
         - firefox
         - github
