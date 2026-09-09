@@ -21,10 +21,6 @@ if status is-interactive
         abbr --add htop btm
     end
 
-    if command -qa viddy
-        abbr --add watch viddy
-    end
-
     if command -qa ripgrep
         abbr --add grep rg
     end
