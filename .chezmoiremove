@@ -13,9 +13,10 @@
 .config/fish/conf.d/scw.fish
 .config/fish/conf.d/uv.fish
 
-# `update` is now a single shared script in ~/.local/bin instead of one
-# implementation per shell.
+# `update` and `copilot-usage` are shared scripts in ~/.local/bin instead of
+# per-shell wrappers.
 .config/fish/functions/update.fish
+.config/fish/functions/copilot-usage.fish
 
 # Dead code: the completion cache helper lost its last caller when the op/scw/uv
 # drop-ins above were removed.

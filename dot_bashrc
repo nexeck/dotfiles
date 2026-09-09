@@ -10,6 +10,3 @@ case $- in
         ;;
 esac
 
-copilot-usage() {
-    command copilot-usage "$@"
-}

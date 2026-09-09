@@ -10,9 +10,6 @@
 # shells, which is exactly when .zshrc is read.
 command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 
-function copilot-usage() {
-    command copilot-usage "$@"
-}
 
 # >>> open-knowledge cli >>>
 # ! Contents within this block are managed by OpenKnowledge. Do not edit.
