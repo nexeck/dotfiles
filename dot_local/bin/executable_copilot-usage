@@ -15,14 +15,27 @@ fi
 
 year=$(date +%Y)
 month=$(date +%m)
-today=$(date +%-d)
-days_in_month=$(date -d "$year-$month-01 +1 month -1 day" +%-d)
+today=$(date +%-d 2>/dev/null || date +%d | sed 's/^0//')
+
+# Detect GNU date vs macOS BSD date
+if date -d "2000-01-01" >/dev/null 2>&1; then
+    days_in_month=$(date -d "$year-$month-01 +1 month -1 day" +%-d)
+    _get_weekday() { date -d "$year-$month-$1" +%u; }
+elif command -v gdate >/dev/null 2>&1; then
+    days_in_month=$(gdate -d "$year-$month-01 +1 month -1 day" +%-d)
+    _get_weekday() { gdate -d "$year-$month-$1" +%u; }
+else
+    days_in_month=$(date -j -v+1m -v-1d -f "%Y-%m-%d" "$year-$month-01" +%-d 2>/dev/null || \
+                    date -j -v+1m -v-1d -f "%Y-%m-%d" "$year-$month-01" +%d | sed 's/^0//')
+    _get_weekday() { date -j -f "%Y-%m-%d" "$year-$month-$1" +%u; }
+fi
+
 working_days_elapsed=0
 working_days_in_month=0
 
 day=1
 while test "$day" -le "$days_in_month"; do
-    weekday=$(date -d "$year-$month-$day" +%u)
+    weekday=$(_get_weekday "$day")
 
     if test "$weekday" -le 5; then
         working_days_in_month=$((working_days_in_month + 1))
