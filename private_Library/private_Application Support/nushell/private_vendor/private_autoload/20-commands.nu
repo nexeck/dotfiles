@@ -3,6 +3,10 @@
 # reachable as `^update`. Every other shell picks it up straight from $PATH.
 def update [] { ^update }
 
+def copilot-usage [...args: string] {
+    ^copilot-usage ...$args
+}
+
 def --wrapped watch [...args: string] {
     if ($args | is-empty) { return }
     if (is-installed viddy) {

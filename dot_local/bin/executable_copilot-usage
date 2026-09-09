@@ -1,0 +1,54 @@
+#!/bin/sh
+
+remaining=$(gh api /copilot_internal/user --jq '.quota_snapshots.premium_interactions.percent_remaining') || {
+    printf '%s\n' 'Could not retrieve GitHub Copilot usage. Check gh authentication.' >&2
+    exit 1
+}
+
+if ! printf '%s\n' "$remaining" | awk '
+    /^[0-9]+([.][0-9]+)?$/ { valid = 1 }
+    END { exit !valid }
+'; then
+    printf '%s\n' 'GitHub returned an unexpected Copilot usage value.' >&2
+    exit 1
+fi
+
+year=$(date +%Y)
+month=$(date +%m)
+today=$(date +%-d)
+days_in_month=$(date -d "$year-$month-01 +1 month -1 day" +%-d)
+working_days_elapsed=0
+working_days_in_month=0
+
+day=1
+while test "$day" -le "$days_in_month"; do
+    weekday=$(date -d "$year-$month-$day" +%u)
+
+    if test "$weekday" -le 5; then
+        working_days_in_month=$((working_days_in_month + 1))
+
+        if test "$day" -le "$today"; then
+            working_days_elapsed=$((working_days_elapsed + 1))
+        fi
+    fi
+
+    day=$((day + 1))
+done
+
+used=$(awk -v remaining="$remaining" 'BEGIN { printf "%.1f", 100 - remaining }')
+allowed=$(awk -v elapsed="$working_days_elapsed" -v total="$working_days_in_month" \
+    'BEGIN { printf "%.1f", 100 * elapsed / total }')
+difference=$(awk -v used="$used" -v allowed="$allowed" \
+    'BEGIN { printf "%.1f", used - allowed }')
+
+printf 'Copilot premium requests used: %s%%\n' "$used"
+printf 'Working days elapsed: %s/%s (%s%% of month)\n' \
+    "$working_days_elapsed" "$working_days_in_month" "$allowed"
+
+if awk -v difference="$difference" 'BEGIN { exit !(difference > 0) }'; then
+    printf 'Over pace by %s percentage points.\n' "$difference"
+    exit 1
+fi
+
+printf 'On pace: %s percentage points below the budget.\n' \
+    "$(awk -v allowed="$allowed" -v used="$used" 'BEGIN { printf "%.1f", allowed - used }')"

@@ -9,3 +9,7 @@ case $- in
         command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
         ;;
 esac
+
+copilot-usage() {
+    command copilot-usage "$@"
+}
