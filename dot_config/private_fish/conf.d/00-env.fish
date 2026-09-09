@@ -51,8 +51,9 @@ if test -r "$path_sh"; and test -r "$extra_paths_file"
     if not test -f "$path_cache"; or test "$extra_paths_file" -nt "$path_cache"; or test "$path_sh" -nt "$path_cache"
         mkdir -p (path dirname "$path_cache")
         echo "# Auto-generated extra paths cache" > "$path_cache"
-        for dir in (sh "$path_sh" --print-extra-paths)
-            echo "fish_add_path --global $dir" >> "$path_cache"
+        set -l extra_dirs (sh "$path_sh" --print-extra-paths)
+        if test (count $extra_dirs) -gt 0
+            echo "fish_add_path --global --prepend $extra_dirs" >> "$path_cache"
         end
     end
     source "$path_cache"

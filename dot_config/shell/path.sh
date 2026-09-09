@@ -42,14 +42,15 @@ fi
 
 # Resolve extra_paths.txt (expanding a leading $HOME or $HOMEBREW_PREFIX,
 # skipping comments/blank lines/missing dirs), acting on each dir as we read it:
-# either print it (--print-extra-paths, for fish) or prepend it to PATH.
-# NOTE: deliberately not accumulated into a variable and split later -
-# zsh doesn't word-split unquoted variables the way sh/bash do, so that
-# approach silently produced one broken multi-line PATH entry in zsh.
-_path_prepend() {
-    case ":$PATH:" in
+# Resolve extra_paths.txt (expanding a leading $HOME or $HOMEBREW_PREFIX,
+# skipping comments/blank lines/missing dirs), acting on each dir as we read it:
+# either print it (--print-extra-paths, for fish) or accumulate it to prepend
+# to PATH while preserving the top-to-bottom priority order.
+_extra_path=""
+_extra_path_add() {
+    case ":$PATH:$_extra_path:" in
         *":$1:"*) ;;
-        *) PATH="$1:$PATH" ;;
+        *) _extra_path="${_extra_path:+$_extra_path:}$1" ;;
     esac
 }
 
@@ -75,7 +76,7 @@ if [ -r "$_extra_paths" ]; then
             if [ "$_print_only" = 1 ]; then
                 printf '%s\n' "$_dir"
             else
-                _path_prepend "$_dir"
+                _extra_path_add "$_dir"
             fi
         fi
     done < "$_extra_paths"
@@ -84,11 +85,16 @@ unset -v _extra_paths _line _dir
 
 if [ "$_print_only" = 1 ]; then
     unset -v _print_only
-    unset -f _path_prepend
+    unset -f _extra_path_add
     return 0 2>/dev/null || exit 0
 fi
 unset -v _print_only
-unset -f _path_prepend
+unset -f _extra_path_add
+
+if [ -n "$_extra_path" ]; then
+    PATH="$_extra_path:$PATH"
+fi
+unset -v _extra_path
 export PATH
 
 # Agent/tty env shared with fish (mirrors private_fish/conf.d/00-env.fish).
