@@ -12,16 +12,31 @@
 _print_only=0
 [ "${1:-}" = "--print-extra-paths" ] && _print_only=1
 
-# Idempotence guard: ~/.zprofile (login shells) and ~/.zshrc (every interactive
-# shell) both source this file, so a login+interactive zsh would otherwise run
-# `mise activate` twice and install its hooks twice. Deliberately a plain,
-# non-exported variable: child shells must still get their own activation,
-# since shell hooks are not inherited through the environment.
-if [ "$_print_only" = 0 ] && [ -n "${__shell_path_sh_sourced:-}" ]; then
-    unset -v _print_only
-    return 0 2>/dev/null || exit 0
+# Idempotence guard: ~/.zshenv, ~/.zprofile, and ~/.zshrc can all source this
+# file. Skip entirely if already sourced for an interactive shell. If previously
+# sourced in a non-interactive shell (shims only) but this invocation is
+# interactive, fall through so mise installs its full shell hooks.
+case "$-" in
+    *i*) _is_interactive=1 ;;
+    *)   _is_interactive=0 ;;
+esac
+
+if [ "$_print_only" = 0 ]; then
+    if [ "${__shell_path_sh_sourced:-}" = "interactive" ]; then
+        unset -v _print_only _is_interactive
+        return 0 2>/dev/null || exit 0
+    elif [ "${__shell_path_sh_sourced:-}" = "shims" ] && [ "$_is_interactive" = 0 ]; then
+        unset -v _print_only _is_interactive
+        return 0 2>/dev/null || exit 0
+    fi
 fi
-__shell_path_sh_sourced=1
+
+if [ "$_is_interactive" = 1 ]; then
+    __shell_path_sh_sourced=interactive
+else
+    __shell_path_sh_sourced=shims
+fi
+unset -v _is_interactive
 
 # Homebrew: sets up HOMEBREW_PREFIX (used below to resolve extra_paths.txt)
 # and puts brew's bin/sbin on PATH. Caches shellenv to avoid ~35ms ruby overhead

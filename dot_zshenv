@@ -1,0 +1,3 @@
+# .zshenv is sourced on ALL zsh invocations, including non-interactive scripts and `zsh -c`.
+# Sets PATH and mise shims so external tools, subshells, and background tasks find installed binaries.
+[ -r "$HOME/.config/shell/path.sh" ] && . "$HOME/.config/shell/path.sh"
