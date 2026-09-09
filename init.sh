@@ -10,7 +10,7 @@ cleanup() {
 trap cleanup EXIT
 
 # Ensure newly installed tools are available immediately
-export PATH="/opt/homebrew/bin:/usr/local/bin:/opt/local/bin:/opt/local/sbin:$PATH"
+export PATH="/opt/homebrew/bin:/opt/local/bin:/opt/local/sbin:$PATH"
 
 # --- Discovery ---
 unameOut="$(uname -s)"
@@ -18,6 +18,12 @@ case "${unameOut}" in
     Darwin*)    machine=darwin ;;
     *)          echo "Error: This script only supports macOS." && exit 1 ;;
 esac
+
+archOut="$(uname -m)"
+if [ "${archOut}" != "arm64" ]; then
+    echo "Error: Only Apple Silicon (ARM64) Macs are supported. Detected: ${archOut}" >&2
+    exit 1
+fi
 
 osx_major=$(sw_vers -productVersion | cut -d. -f1)
 if [ "$osx_major" -ge 11 ]; then
@@ -53,15 +59,15 @@ fi
 # Ensure brew is active in the current session
 if [ -f /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [ -f /usr/local/bin/brew ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# Install jq for robust JSON parsing
-if ! command -v jq >/dev/null 2>&1; then
-    echo "Installing jq..."
-    brew install jq
-fi
+# Install jq and gnupg for package parsing and MacPorts signature verification
+for dep in jq gnupg; do
+    if ! command -v "$dep" >/dev/null 2>&1; then
+        echo "Installing $dep..."
+        brew install "$dep"
+    fi
+done
 
 # --- MacPorts ---
 echo "==> Checking MacPorts..."
@@ -126,13 +132,13 @@ if ! pass-cli vault list >/dev/null 2>&1; then
 else
     echo "Already logged in to Proton Pass."
 fi
+
+export SSH_AUTH_SOCK="$HOME/.ssh/proton-pass-agent.sock"
 if ! pass-cli ssh-agent daemon status | grep -q "Status:[[:space:]]*running"; then
     pass-cli ssh-agent daemon start
 else
     echo "Proton Pass SSH Agent is already running."
 fi
-
-export SSH_AUTH_SOCK="$HOME/.ssh/proton-pass-agent.sock"
 
 # Wait for socket to be ready
 echo "Waiting for SSH agent socket..."
@@ -151,11 +157,11 @@ fi
 # --- Chezmoi ---
 echo "==> Initializing Dotfiles with chezmoi..."
 if [ -d "$HOME/.local/share/chezmoi" ]; then
-    echo "Existing chezmoi directory found. Updating..."
-    #chezmoi update --apply
+    echo "Existing chezmoi directory found. Applying..."
+    chezmoi apply
 else
     echo "Initializing new chezmoi repository..."
-    #chezmoi init --apply --ssh nexeck
+    chezmoi init --apply --ssh nexeck
 fi
 
 echo "Done! System initialized."
