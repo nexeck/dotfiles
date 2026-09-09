@@ -4,8 +4,6 @@ set -gx HOMEBREW_NO_ANALYTICS 1
 set -l brew_bin
 if test -x /opt/homebrew/bin/brew
     set brew_bin /opt/homebrew/bin/brew
-else if test -x /usr/local/bin/brew
-    set brew_bin /usr/local/bin/brew
 end
 if test -n "$brew_bin"
     set -l brew_cache "$HOME/.cache/fish/brew_shellenv.fish"

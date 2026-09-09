@@ -29,12 +29,8 @@ __shell_path_sh_sourced=1
 export HOMEBREW_NO_ANALYTICS=1
 if [ -n "${HOMEBREW_PREFIX:-}" ]; then
     :
-elif [ -x /opt/homebrew/bin/brew ] || [ -x /usr/local/bin/brew ]; then
-    if [ -x /opt/homebrew/bin/brew ]; then
-        _brew_bin="/opt/homebrew/bin/brew"
-    else
-        _brew_bin="/usr/local/bin/brew"
-    fi
+elif [ -x /opt/homebrew/bin/brew ]; then
+    _brew_bin="/opt/homebrew/bin/brew"
     _brew_cache="$HOME/.cache/shell/brew_shellenv.sh"
     if [ ! -f "$_brew_cache" ] || [ "$_brew_bin" -nt "$_brew_cache" ]; then
         mkdir -p "$HOME/.cache/shell"
