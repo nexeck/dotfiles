@@ -33,7 +33,7 @@ Library/LaunchAgents/com.user.uv-system-certs.plist
 Library/LaunchAgents/com.user.proxy-certs.plist
 
 # Zscaler integration helper is removed when hasZscaler is false.
-{{- if not .hasZscaler }}
+{{- if not (get . "hasZscaler") }}
 .local/bin/zscaler-copilot-continue
 {{- end }}
 
