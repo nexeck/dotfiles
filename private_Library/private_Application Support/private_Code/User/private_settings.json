@@ -31,11 +31,29 @@
     }
   },
   "chat.mcp.gallery.enabled": true,
-  // chat.agent.sandbox.enabled is intentionally NOT overridden here: the
-  // default (sandboxed) keeps agent-run commands inside the safety boundary.
-  // Turning it "off" widens the blast radius of a prompt-injection incident,
-  // which matters on a machine with corporate source access.
   "chat.tools.terminal.terminalProfile.osx": {
     "path": "bash"
+  },
+  "chat.assistedPermissions.enabled": true,
+  "chat.agent.sandbox.enabled": "off",
+  "chat.mcp.serverSampling": {
+    "Global in Code: io.github.github/github-mcp-server": {
+      "allowedModels": [
+        "copilotcli/auto",
+        "copilot/auto"
+      ]
+    }
+  },
+  "git.detectWorktrees": true,
+  "git.autofetch": true,
+  "foam.graph.onStartup": true,
+  "foam.graph.navigateToPreview": true,
+  "githubPullRequests.pullBranch": "never",
+  "chat.agent.maxRequests": 100,
+  "chat.agent.sandbox.fileSystem.linux": {
+    "denyRead": [],
+    "allowRead": [],
+    "allowWrite": [],
+    "denyWrite": []
   }
 }

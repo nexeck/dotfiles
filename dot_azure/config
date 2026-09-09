@@ -1,0 +1,5 @@
+[cloud]
+name = AzureCloud
+
+[extension]
+use_dynamic_install = yes_without_prompt

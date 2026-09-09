@@ -39,6 +39,8 @@
 	ignorecase = false
 	pager = delta
 
+	autocrlf = input
+
 [commit]
 	template = ~/.config/git/template-commit
 
@@ -78,7 +80,6 @@
 
 [pull]
 	rebase = true
-
 [rebase]
 	autoSquash = true
 	autoStash = true
