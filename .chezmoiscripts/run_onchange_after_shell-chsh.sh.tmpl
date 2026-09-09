@@ -3,29 +3,33 @@
 
 set -eufo pipefail
 
-# Find fish path dynamically at runtime
+# Re-run when the fish binary path changes:
+# fish path: {{ output "sh" "-c" "command -v /opt/homebrew/bin/fish || command -v fish || true" | trim }}
+
+# Find fish path on Apple Silicon macOS
 fish_path=$(command -v fish || true)
 if [ -z "${fish_path}" ]; then
     if [ -x /opt/homebrew/bin/fish ]; then
         fish_path="/opt/homebrew/bin/fish"
-    elif [ -x /usr/local/bin/fish ]; then
-        fish_path="/usr/local/bin/fish"
     else
         echo "Fish shell not found, skipping shell change."
         exit 0
     fi
 fi
 
+# Authenticate sudo upfront
+sudo -v
+
 # Add fish to /etc/shells if not already present
 if ! grep -qxF "${fish_path}" /etc/shells; then
     echo "${fish_path}" | sudo tee -a /etc/shells
 fi
 
-current_shell=$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')
+current_shell=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')
 
 # Change shell only if different
 if [ "${current_shell}" != "${fish_path}" ]; then
     echo "Changing shell to ${fish_path}..."
-    chsh -s "${fish_path}"
+    sudo dscl . -create "/Users/$USER" UserShell "${fish_path}"
 fi
 {{ end -}}
