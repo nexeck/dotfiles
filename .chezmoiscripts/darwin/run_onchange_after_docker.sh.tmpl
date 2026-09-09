@@ -3,8 +3,12 @@
 
 set -eufo pipefail
 
-if test -f "/opt/homebrew/opt/docker-buildx/bin/docker-buildx"; then
-    mkdir -p ~/.docker/cli-plugins
-    ln -sfn /opt/homebrew/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
+# Re-run when docker-buildx binary changes or is newly installed:
+# buildx hash: {{ output "sh" "-c" "test -f /opt/homebrew/opt/docker-buildx/bin/docker-buildx && shasum -a 256 /opt/homebrew/opt/docker-buildx/bin/docker-buildx | awk '{print $1}' || echo 'not-installed'" | trim }}
+
+buildx_bin="/opt/homebrew/opt/docker-buildx/bin/docker-buildx"
+if [ -f "${buildx_bin}" ]; then
+    mkdir -p "$HOME/.docker/cli-plugins"
+    ln -sfn "${buildx_bin}" "$HOME/.docker/cli-plugins/docker-buildx"
 fi
 {{ end -}}
