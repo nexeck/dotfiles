@@ -1,5 +1,4 @@
-{{- /* The Homebrew prefix differs between Intel and Apple Silicon, so resolve
-      pass-cli via $PATH - but abort loudly instead of rendering an empty
+{{- /* Resolve pass-cli via $PATH, but abort loudly instead of rendering an empty
       <string></string>, which would produce a plist launchd refuses to load.
       .install-password-manager.sh installs pass-cli from the read-source-state
       hook, so an empty result here means that hook did not do its job. */ -}}
