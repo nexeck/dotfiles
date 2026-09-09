@@ -3,6 +3,9 @@
 
 set -eufo pipefail
 
+# Re-run whenever macOS build changes (OS updates often reset PAM configurations):
+# macOS Build: {{ output "sw_vers" "-buildVersion" | trim }}
+
 # On macOS Sonoma (14.0) and newer, use /etc/pam.d/sudo_local to survive updates
 if [ -f /etc/pam.d/sudo_local.template ]; then
     if [ ! -f /etc/pam.d/sudo_local ]; then
