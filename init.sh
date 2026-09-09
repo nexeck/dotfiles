@@ -134,10 +134,19 @@ else
 fi
 
 export SSH_AUTH_SOCK="$HOME/.ssh/proton-pass-agent.sock"
-if ! pass-cli ssh-agent daemon status | grep -q "Status:[[:space:]]*running"; then
-    pass-cli ssh-agent daemon start
-else
-    echo "Proton Pass SSH Agent is already running."
+agent_label="com.proton.pass-cli.ssh-agent"
+uid="$(id -u)"
+
+# Prefer launchd supervision; avoid conflicting background daemon
+if launchctl print "gui/$uid/$agent_label" >/dev/null 2>&1; then
+    echo "Proton Pass SSH Agent is managed by launchd."
+elif [ -f "$HOME/Library/LaunchAgents/${agent_label}.plist" ]; then
+    echo "Bootstrapping LaunchAgent for Proton Pass SSH Agent..."
+    launchctl bootstrap "gui/$uid" "$HOME/Library/LaunchAgents/${agent_label}.plist" 2>/dev/null || true
+elif [ ! -S "$SSH_AUTH_SOCK" ]; then
+    # Clean up any stale PID file before starting
+    rm -f "$HOME/.ssh/proton-pass-agent.pid"
+    pass-cli ssh-agent daemon start 2>/dev/null || true
 fi
 
 # Wait for socket to be ready
@@ -162,6 +171,12 @@ if [ -d "$HOME/.local/share/chezmoi" ]; then
 else
     echo "Initializing new chezmoi repository..."
     chezmoi init --apply --ssh nexeck
+fi
+
+# Ensure LaunchAgent is bootstrapped if deployed by chezmoi
+if [ -f "$HOME/Library/LaunchAgents/${agent_label}.plist" ] && ! launchctl print "gui/$uid/$agent_label" >/dev/null 2>&1; then
+    echo "Registering Proton Pass LaunchAgent with launchd..."
+    launchctl bootstrap "gui/$uid" "$HOME/Library/LaunchAgents/${agent_label}.plist" 2>/dev/null || true
 fi
 
 echo "Done! System initialized."
