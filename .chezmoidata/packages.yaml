@@ -68,9 +68,7 @@ packages:
         - zed
         - obsidian
         - yubico-authenticator
-        - name: fido2-manage
-          architectures:
-            - arm64
+        - fido2-manage
         - ghostty
         - tabby
         - stirling-pdf

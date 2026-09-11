@@ -31,10 +31,6 @@ Run the repository's [init.sh](./init.sh) from a trusted checkout. It will:
 4. Write the dotfiles, then run the provisioning scripts: install packages,
    apply macOS defaults, enable Touch ID for `sudo`, set the shell to fish.
 
-If using the external [dotfiles-init](https://github.com/nexeck/dotfiles-init)
-bootstrap, verify that its pinned revision invokes the same `chezmoi init --apply`
-or `chezmoi update --apply` steps before trusting its success message.
-
 Expect to be prompted: several scripts need `sudo`, and Proton Pass must be
 unlocked. Setup is **not** unattended.
 
@@ -75,9 +71,8 @@ launchctl bootstrap gui/"$(id -u)" ~/Library/LaunchAgents/com.user.zscaler-copil
 Packages are **not** installed by hand: add them to `.chezmoidata/packages.yaml`
 and run `chezmoi apply`.
 
-`fido2-manage` is installed only on Apple Silicon because its Homebrew cask does
-not support Intel Macs. The remaining common package set is rendered for both
-architectures.
+All supported machines are Apple Silicon. Package declarations are therefore
+not filtered for Intel compatibility.
 
 ## Layout
 

@@ -39,15 +39,9 @@ tap {{ . | quote }}
 {{ range $packagesBrews -}}
 brew {{ . | quote }}
 {{ end -}}
-{{ range $packagesCasks }}
-{{ if or (not (kindIs "map" .)) (has $.chezmoi.arch .architectures) }}
-{{ if kindIs "map" . }}
-cask {{ .name | quote }}
-{{ else }}
+{{ range $packagesCasks -}}
 cask {{ . | quote }}
-{{ end }}
-{{ end }}
-{{ end }}
+{{ end -}}
 {{ range $packagesVscode -}}
 vscode {{ . | quote }}
 {{ end -}}
