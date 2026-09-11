@@ -10,7 +10,7 @@ no Linux support, and the provisioning scripts assume Homebrew and `sudo`.
 
 - macOS 11 or newer (Apple Silicon / ARM64 only)
 - [Homebrew](https://brew.sh/)
-- chezmoi ≥ 2.62 (enforced by `.chezmoiversion`)
+- chezmoi ≥ 2.69 (enforced by `.chezmoiversion`)
 - A Proton Pass account with the vault entries listed under [Secrets](#secrets)
 
 The repository requires chezmoi 2.69.0 or newer because its templates use the
