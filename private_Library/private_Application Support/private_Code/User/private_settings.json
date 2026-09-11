@@ -14,7 +14,7 @@
   "terminal.integrated.commandsToSkipShell": [
     "-workbench.action.quickOpenView"
   ],
-  "mise.binPath": "/opt/homebrew/bin/mise",
+  "mise.binPath": "mise",
   "go.toolsManagement.autoUpdate": true,
   "rust-analyzer.cargo.features": "all",
   "rust-analyzer.cargo.targetDir": true,

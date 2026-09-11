@@ -39,15 +39,27 @@ tap {{ . | quote }}
 {{ range $packagesBrews -}}
 brew {{ . | quote }}
 {{ end -}}
-{{ range $packagesCasks -}}
+{{ range $packagesCasks }}
+{{ if or (not (kindIs "map" .)) (has $.chezmoi.arch .architectures) }}
+{{ if kindIs "map" . }}
+cask {{ .name | quote }}
+{{ else }}
 cask {{ . | quote }}
-{{ end -}}
+{{ end }}
+{{ end }}
+{{ end }}
 {{ range $packagesVscode -}}
 vscode {{ . | quote }}
 {{ end -}}
 EOF
 
 brew bundle install --no-lock --file="$brewfile"
+
+if ! command -v mise >/dev/null 2>&1; then
+    echo "Error: mise is required to install the declared runtime versions." >&2
+    exit 1
+fi
+mise --cd "$HOME" install --yes
 
 {{ if $packagesPorts }}
 # MacPorts packages are only installed when `port` is already present. MDM

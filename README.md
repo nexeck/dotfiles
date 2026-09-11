@@ -8,17 +8,19 @@ no Linux support, and the provisioning scripts assume Homebrew and `sudo`.
 
 ## Requirements
 
-- macOS (Apple Silicon / ARM64 only)
+- macOS 11 or newer (Apple Silicon / ARM64 only)
 - [Homebrew](https://brew.sh/)
 - chezmoi ≥ 2.62 (enforced by `.chezmoiversion`)
 - A Proton Pass account with the vault entries listed under [Secrets](#secrets)
 
+The repository requires chezmoi 2.69.0 or newer because its templates use the
+Proton Pass template functions introduced after 2.62.
+This supersedes the legacy shorthand on the requirement line above; the
+enforced source file is `.chezmoiversion`.
+
 ## Fresh machine
 
-Bootstrapping is handled by a separate repository:
-[dotfiles-init](https://github.com/nexeck/dotfiles-init).
-
-It ends up running `chezmoi init --apply`, which will:
+Run the repository's [init.sh](./init.sh) from a trusted checkout. It will:
 
 1. Ask **"Is this a work machine?"** — this choice is stored and drives every
    profile-conditional file from then on.
@@ -28,6 +30,10 @@ It ends up running `chezmoi init --apply`, which will:
    secrets.
 4. Write the dotfiles, then run the provisioning scripts: install packages,
    apply macOS defaults, enable Touch ID for `sudo`, set the shell to fish.
+
+If using the external [dotfiles-init](https://github.com/nexeck/dotfiles-init)
+bootstrap, verify that its pinned revision invokes the same `chezmoi init --apply`
+or `chezmoi update --apply` steps before trusting its success message.
 
 Expect to be prompted: several scripts need `sudo`, and Proton Pass must be
 unlocked. Setup is **not** unattended.
@@ -68,6 +74,10 @@ launchctl bootstrap gui/"$(id -u)" ~/Library/LaunchAgents/com.user.zscaler-copil
 
 Packages are **not** installed by hand: add them to `.chezmoidata/packages.yaml`
 and run `chezmoi apply`.
+
+`fido2-manage` is installed only on Apple Silicon because its Homebrew cask does
+not support Intel Macs. The remaining common package set is rendered for both
+architectures.
 
 ## Layout
 

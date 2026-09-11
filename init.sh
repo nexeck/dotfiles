@@ -15,7 +15,7 @@ export PATH="/opt/homebrew/bin:/opt/local/bin:/opt/local/sbin:$PATH"
 # --- Discovery ---
 unameOut="$(uname -s)"
 case "${unameOut}" in
-    Darwin*)    machine=darwin ;;
+    Darwin*)    ;;
     *)          echo "Error: This script only supports macOS." && exit 1 ;;
 esac
 
@@ -111,9 +111,8 @@ if ! command -v port >/dev/null 2>&1; then
     echo "Running installer (requires sudo)..."
     sudo installer -pkg "${pkg_file}" -target /
 fi
-
 # --- Base Tools ---
-echo "==> Installing Base Tools (mise, chezmoi, pass-cli)..."
+echo "==> Installing bootstrap tools..."
 for tool in mise chezmoi pass-cli; do
     if ! command -v "$tool" >/dev/null 2>&1; then
         echo "Installing $tool..."
@@ -151,12 +150,14 @@ fi
 
 # Wait for socket to be ready
 echo "Waiting for SSH agent socket..."
-for i in {1..10}; do
+attempt=0
+while [ "$attempt" -lt 10 ]; do
     if [ -S "$SSH_AUTH_SOCK" ]; then
         echo "SSH agent is ready."
         break
     fi
     sleep 0.5
+    attempt=$((attempt + 1))
 done
 
 if [ ! -S "$SSH_AUTH_SOCK" ]; then
@@ -179,4 +180,9 @@ if [ -f "$HOME/Library/LaunchAgents/${agent_label}.plist" ] && ! launchctl print
     launchctl bootstrap "gui/$uid" "$HOME/Library/LaunchAgents/${agent_label}.plist" 2>/dev/null || true
 fi
 
-echo "Done! System initialized."
+if ! chezmoi source-path >/dev/null 2>&1; then
+    echo "Error: chezmoi did not initialize a source directory." >&2
+    exit 1
+fi
+
+echo "Done! System initialized and dotfiles applied."
