@@ -43,13 +43,20 @@ uid=$(id -u)
 # does not render any template and costs nothing (no Proton Pass lookups).
 is_work=false
 if have chezmoi; then
-    is_work=$(chezmoi execute-template '{{ .isWork }}' 2>/dev/null || echo false)
+    if ! is_work=$(chezmoi execute-template '{{ .isWork }}' 2>/dev/null); then
+        bad "could not determine the chezmoi profile"
+        is_work=false
+    elif [ "$is_work" != true ] && [ "$is_work" != false ]; then
+        bad "chezmoi returned an invalid profile value: $is_work"
+        is_work=false
+    fi
 fi
 
 # --------------------------------------------------------------------------
 section "SSH agent (Proton Pass)"
 
 sock=${SSH_AUTH_SOCK:-$HOME/.ssh/proton-pass-agent.sock}
+export SSH_AUTH_SOCK="$sock"
 if [ -S "$sock" ]; then
     ok "socket present: $sock"
 else
@@ -196,13 +203,20 @@ if have chezmoi; then
     # config template and compare.
     deployed="$HOME/.config/chezmoi/chezmoi.yaml"
     if [ -n "${src:-}" ] && [ -f "$src/.chezmoi.yaml.tmpl" ] && [ -f "$deployed" ]; then
-        rendered=$(chezmoi execute-template --init --promptBool "isWork=$is_work" \
-            < "$src/.chezmoi.yaml.tmpl" 2>/dev/null || true)
-        if [ -n "$rendered" ] && ! printf '%s\n' "$rendered" | diff -q - "$deployed" >/dev/null 2>&1; then
-            warn "config file template has drifted from $deployed"
-            note "regenerate with: chezmoi init"
+        if rendered=$(chezmoi execute-template --init --promptBool "isWork=$is_work" \
+            < "$src/.chezmoi.yaml.tmpl" 2>/dev/null); then
+            if [ -z "$rendered" ]; then
+                bad "chezmoi config template rendered empty"
+                note "regenerate with: chezmoi init"
+            elif ! printf '%s\n' "$rendered" | diff -q - "$deployed" >/dev/null 2>&1; then
+                warn "config file template has drifted from $deployed"
+                note "regenerate with: chezmoi init"
+            else
+                ok "deployed config matches .chezmoi.yaml.tmpl"
+            fi
         else
-            ok "deployed config matches .chezmoi.yaml.tmpl"
+            bad "chezmoi config template render failed"
+            note "unlock Proton Pass and run: chezmoi init"
         fi
     fi
 else

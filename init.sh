@@ -91,11 +91,11 @@ if launchctl print "gui/$uid/$agent_label" >/dev/null 2>&1; then
     echo "Proton Pass SSH Agent is managed by launchd."
 elif [ -f "$HOME/Library/LaunchAgents/${agent_label}.plist" ]; then
     echo "Bootstrapping LaunchAgent for Proton Pass SSH Agent..."
-    launchctl bootstrap "gui/$uid" "$HOME/Library/LaunchAgents/${agent_label}.plist" 2>/dev/null || true
+    launchctl bootstrap "gui/$uid" "$HOME/Library/LaunchAgents/${agent_label}.plist"
 elif [ ! -S "$SSH_AUTH_SOCK" ]; then
     # Clean up any stale PID file before starting
     rm -f "$HOME/.ssh/proton-pass-agent.pid"
-    pass-cli ssh-agent daemon start 2>/dev/null || true
+    pass-cli ssh-agent daemon start
 fi
 
 # Wait for socket to be ready
@@ -127,7 +127,7 @@ fi
 # Ensure LaunchAgent is bootstrapped if deployed by chezmoi
 if [ -f "$HOME/Library/LaunchAgents/${agent_label}.plist" ] && ! launchctl print "gui/$uid/$agent_label" >/dev/null 2>&1; then
     echo "Registering Proton Pass LaunchAgent with launchd..."
-    launchctl bootstrap "gui/$uid" "$HOME/Library/LaunchAgents/${agent_label}.plist" 2>/dev/null || true
+    launchctl bootstrap "gui/$uid" "$HOME/Library/LaunchAgents/${agent_label}.plist"
 fi
 
 if ! chezmoi source-path >/dev/null 2>&1; then

@@ -1,0 +1,41 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+# Re-run when managed LaunchAgent content changes.
+# Proton Pass plist hash: {{ include "private_Library/private_LaunchAgents/com.proton.pass-cli.ssh-agent.plist.tmpl" | sha256sum }}
+{{ if .isWork -}}
+# Privileges plist hash: {{ include "private_Library/private_LaunchAgents/com.sap.privileges.renew.plist.tmpl" | sha256sum }}
+{{ end -}}
+
+uid="$(id -u)"
+domain="gui/${uid}"
+
+reload_agent() {
+    label="$1"
+    plist="$2"
+
+    if [ -f "$plist" ]; then
+        if launchctl print "${domain}/${label}" >/dev/null 2>&1; then
+            launchctl bootout "${domain}/${label}"
+        fi
+        launchctl bootstrap "$domain" "$plist"
+    elif launchctl print "${domain}/${label}" >/dev/null 2>&1; then
+        launchctl bootout "${domain}/${label}"
+    fi
+}
+
+reload_agent \
+    "com.proton.pass-cli.ssh-agent" \
+    "${HOME}/Library/LaunchAgents/com.proton.pass-cli.ssh-agent.plist"
+{{ if .isWork -}}
+reload_agent \
+    "com.sap.privileges.renew" \
+    "${HOME}/Library/LaunchAgents/com.sap.privileges.renew.plist"
+{{ else -}}
+if launchctl print "${domain}/com.sap.privileges.renew" >/dev/null 2>&1; then
+    launchctl bootout "${domain}/com.sap.privileges.renew"
+fi
+{{ end -}}
+{{ end -}}

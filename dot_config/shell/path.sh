@@ -39,20 +39,14 @@ fi
 unset -v _is_interactive
 
 # Homebrew: sets up HOMEBREW_PREFIX (used below to resolve extra_paths.txt)
-# and puts brew's bin/sbin on PATH. Caches shellenv to avoid ~35ms ruby overhead
-# on every interactive zsh/bash startup.
+# and puts brew's bin/sbin on PATH.
 export HOMEBREW_NO_ANALYTICS=1
 if [ -n "${HOMEBREW_PREFIX:-}" ]; then
     :
 elif [ -x /opt/homebrew/bin/brew ]; then
     _brew_bin="/opt/homebrew/bin/brew"
-    _brew_cache="$HOME/.cache/shell/brew_shellenv.sh"
-    if [ ! -f "$_brew_cache" ] || [ "$_brew_bin" -nt "$_brew_cache" ]; then
-        mkdir -p "$HOME/.cache/shell"
-        "$_brew_bin" shellenv > "$_brew_cache"
-    fi
-    . "$_brew_cache"
-    unset -v _brew_bin _brew_cache
+    eval "$("$_brew_bin" shellenv)"
+    unset -v _brew_bin
 fi
 
 # Resolve extra_paths.txt (expanding a leading $HOME or $HOMEBREW_PREFIX,

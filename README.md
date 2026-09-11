@@ -43,8 +43,9 @@ Two mutually exclusive profiles, chosen at `chezmoi init` time:
 | Work     | `isWork: true`     | Corporate machine: work git identity, MDM-friendly umask |
 | Personal | `isPersonal: true` | Personal machine: personal git identity, macOS defaults, personal apps                               |
 
-Profile gating happens in `.chezmoiignore` and in `.tmpl` guards. Re-run
-`chezmoi init` to change the answer.
+Profile gating happens in `.chezmoiignore` and in `.tmpl` guards. Profiles are
+fixed after initialization; changing profile is not an in-place migration.
+Reinitialize a separate destination if a different profile is required.
 
 ## Day-to-day
 

@@ -1,0 +1,38 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+uid="$(id -u)"
+domain="gui/${uid}"
+
+reconcile_agent() {
+    label="$1"
+    plist="$2"
+    desired="$3"
+
+    if [ "$desired" = true ] && [ -f "$plist" ]; then
+        if ! launchctl print "${domain}/${label}" >/dev/null 2>&1; then
+            launchctl bootstrap "$domain" "$plist"
+        fi
+    elif launchctl print "${domain}/${label}" >/dev/null 2>&1; then
+        launchctl bootout "${domain}/${label}"
+    fi
+}
+
+reconcile_agent \
+    "com.proton.pass-cli.ssh-agent" \
+    "${HOME}/Library/LaunchAgents/com.proton.pass-cli.ssh-agent.plist" \
+    true
+{{ if .isWork -}}
+reconcile_agent \
+    "com.sap.privileges.renew" \
+    "${HOME}/Library/LaunchAgents/com.sap.privileges.renew.plist" \
+    true
+{{ else -}}
+reconcile_agent \
+    "com.sap.privileges.renew" \
+    "${HOME}/Library/LaunchAgents/com.sap.privileges.renew.plist" \
+    false
+{{ end -}}
+{{ end -}}

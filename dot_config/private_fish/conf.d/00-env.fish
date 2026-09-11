@@ -1,17 +1,10 @@
 set -gx HOMEBREW_NO_ANALYTICS 1
-# `brew shellenv` costs ~35ms; its output only changes when brew moves, so
-# cache it and re-source, regenerating only when the brew binary is newer.
 set -l brew_bin
 if test -x /opt/homebrew/bin/brew
     set brew_bin /opt/homebrew/bin/brew
 end
 if test -n "$brew_bin"
-    set -l brew_cache "$HOME/.cache/fish/brew_shellenv.fish"
-    if not test -f "$brew_cache"; or test "$brew_bin" -nt "$brew_cache"
-        mkdir -p (path dirname "$brew_cache")
-        $brew_bin shellenv fish >"$brew_cache"
-    end
-    source "$brew_cache"
+    $brew_bin shellenv fish | source
 end
 
 # Only meaningful when there actually is a terminal: in a non-interactive
@@ -45,16 +38,10 @@ end
 # it and skips its own `brew shellenv`.
 set -l path_sh "$HOME/.config/shell/path.sh"
 set -l extra_paths_file "$HOME/.config/shell/extra_paths.txt"
-set -l path_cache "$HOME/.cache/fish/extra_paths.fish"
 
 if test -r "$path_sh"; and test -r "$extra_paths_file"
-    if not test -f "$path_cache"; or test "$extra_paths_file" -nt "$path_cache"; or test "$path_sh" -nt "$path_cache"
-        mkdir -p (path dirname "$path_cache")
-        echo "# Auto-generated extra paths cache" > "$path_cache"
-        set -l extra_dirs (sh "$path_sh" --print-extra-paths)
-        if test (count $extra_dirs) -gt 0
-            echo "fish_add_path --global --prepend $extra_dirs" >> "$path_cache"
-        end
+    set -l extra_dirs (sh "$path_sh" --print-extra-paths)
+    if test (count $extra_dirs) -gt 0
+        set -gx PATH $extra_dirs $PATH
     end
-    source "$path_cache"
 end
