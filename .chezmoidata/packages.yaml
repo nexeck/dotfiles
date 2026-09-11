@@ -73,8 +73,6 @@ packages:
         - tabby
         - stirling-pdf
         - zennotes/tap/zennotes
-      ports:
-        - curl +ares
     work:
       casks:
         - firefox

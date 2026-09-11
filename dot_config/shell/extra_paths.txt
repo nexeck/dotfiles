@@ -4,8 +4,6 @@
 # shell's loader; blank lines and lines starting with # are ignored.
 # Missing directories are skipped.
 $HOME/.local/bin
-/opt/local/bin
-/opt/local/sbin
 $HOME/.foundry/bin
 $HOMEBREW_PREFIX/opt/curl/bin
 $HOMEBREW_PREFIX/opt/libpq/bin

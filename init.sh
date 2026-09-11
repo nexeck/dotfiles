@@ -10,7 +10,7 @@ cleanup() {
 trap cleanup EXIT
 
 # Ensure newly installed tools are available immediately
-export PATH="/opt/homebrew/bin:/opt/local/bin:/opt/local/sbin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 
 # --- Discovery ---
 unameOut="$(uname -s)"
@@ -61,56 +61,6 @@ if [ -f /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Install jq and gnupg for package parsing and MacPorts signature verification
-for dep in jq gnupg; do
-    if ! command -v "$dep" >/dev/null 2>&1; then
-        echo "Installing $dep..."
-        brew install "$dep"
-    fi
-done
-
-# --- MacPorts ---
-echo "==> Checking MacPorts..."
-if ! command -v port >/dev/null 2>&1; then
-    echo "Installing MacPorts for macOS $osx_num..."
-
-    # Get latest release data
-    release_json=$(curl -fsSL "https://api.github.com/repos/macports/macports-base/releases/latest")
-    macports_tag=$(printf '%s\n' "$release_json" | jq -r '.tag_name')
-    macports_version="${macports_tag#v}"
-
-    # Robust matching with jq
-    pkg_name=$(printf '%s\n' "$release_json" | jq -r --arg version "$macports_version" --arg os "$osx_num" '.assets[] | select(.name | test("MacPorts-" + $version + "-" + $os + "(-[^.]*)?\\.pkg")) | .name' | head -1)
-
-    if [[ -z "${pkg_name}" || "${pkg_name}" == "null" ]]; then
-        echo "Error: No MacPorts package found for macOS ${osx_num}" && exit 1
-    fi
-
-    pkg_url="https://github.com/macports/macports-base/releases/download/${macports_tag}/${pkg_name}"
-    pkg_file="${work_dir}/${pkg_name}"
-
-    echo "Downloading ${pkg_name}..."
-    curl -fsSL -o "${pkg_file}" "${pkg_url}"
-
-    # GPG Signature Verification
-    if command -v gpg >/dev/null 2>&1; then
-        echo "Verifying signature..."
-        curl -fsSL -o "${pkg_file}.asc" "${pkg_url}.asc"
-        if ! gpg --list-keys "keymaster@macports.org" >/dev/null 2>&1; then
-            curl -fsSL "https://trac.macports.org/static/gpg/macports-keyring.gpg" | gpg --import
-        fi
-        if ! gpg --verify "${pkg_file}.asc" "${pkg_file}"; then
-            echo "Error: MacPorts GPG signature verification failed!" >&2
-            exit 1
-        fi
-    else
-        echo "Error: gpg command is required to verify MacPorts installer package." >&2
-        exit 1
-    fi
-
-    echo "Running installer (requires sudo)..."
-    sudo installer -pkg "${pkg_file}" -target /
-fi
 # --- Base Tools ---
 echo "==> Installing bootstrap tools..."
 for tool in mise chezmoi pass-cli; do

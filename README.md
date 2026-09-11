@@ -54,7 +54,7 @@ chezmoi apply                # apply them
 chezmoi apply --force <path> # re-apply one target, skipping the "changed since" prompt
 chezmoi edit <file>          # edit the source of a deployed file (opens micro)
 chezmoi add <file>           # start managing an existing file
-update                       # upgrade Homebrew, MacPorts and tldr pages
+update                       # upgrade Homebrew and tldr pages
 dotfiles-doctor              # check that agent, secrets, signing and agents work
 ```
 

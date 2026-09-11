@@ -3,13 +3,13 @@
 
 set -eufo pipefail
 
-# Ensure Homebrew and MacPorts are on PATH in non-login / automated environments
+# Ensure Homebrew is on PATH in non-login / automated environments
 if [ -x /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
-export PATH="/opt/homebrew/bin:/opt/local/bin:/opt/local/sbin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 
-# authenticate the sudo session upfront so later sudo calls (e.g. port install) don't prompt mid-script
+# authenticate the sudo session upfront for package installation
 sudo -v
 
 {{/* Merge the "all" lists with the ones for the active profile. `dig` walks a
@@ -21,7 +21,6 @@ sudo -v
 {{- $packagesTaps   := concat (dig "all" "taps"   list .packages.darwin | default list) (dig $profile "taps"   list .packages.darwin | default list) -}}
 {{- $packagesBrews  := concat (dig "all" "brews"  list .packages.darwin | default list) (dig $profile "brews"  list .packages.darwin | default list) -}}
 {{- $packagesCasks  := concat (dig "all" "casks"  list .packages.darwin | default list) (dig $profile "casks"  list .packages.darwin | default list) -}}
-{{- $packagesPorts  := concat (dig "all" "ports"  list .packages.darwin | default list) (dig $profile "ports"  list .packages.darwin | default list) -}}
 {{- $packagesVscode := concat (dig "all" list .packages.vscode | default list)          (dig $profile list .packages.vscode | default list) -}}
 
 # write the Brewfile to a temp file rather than piping via /dev/stdin
@@ -54,16 +53,5 @@ if ! command -v mise >/dev/null 2>&1; then
     exit 1
 fi
 mise --cd "$HOME" install --yes
-
-{{ if $packagesPorts }}
-# MacPorts packages are only installed when `port` is already present. MDM
-# currently prevents bootstrapping MacPorts itself, so this only applies once
-# it has been installed some other way.
-if command -v port >/dev/null 2>&1; then
-{{ range $packagesPorts -}}
-    sudo port install -N {{ . }}
-{{ end -}}
-fi
-{{ end -}}
 
 {{ end -}}

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Update everything: Homebrew, MacPorts, tldr pages and macOS itself.
+# Update Homebrew and tldr pages.
 #
 # Lives here rather than as a fish function / nushell def so there is exactly
 # one implementation. ~/.local/bin is on $PATH in fish, zsh, bash and nushell
@@ -15,11 +15,6 @@ sudo -v
 if command -v brew >/dev/null 2>&1; then
     brew update
     brew upgrade
-fi
-
-if command -v port >/dev/null 2>&1; then
-    sudo port selfupdate
-    sudo port upgrade outdated
 fi
 
 if command -v tldr >/dev/null 2>&1; then

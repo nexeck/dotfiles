@@ -19,7 +19,7 @@ Profile flags are used in `.tmpl` files and `.chezmoiignore` to conditionally in
 .chezmoiignore                    # Profile-conditional ignores
 .chezmoiremove                    # Targets to delete from $HOME (deleted/renamed entries)
 .chezmoidata/
-  packages.yaml                   # All packages: homebrew taps/brews/casks, macports, vscode extensions
+  packages.yaml                   # Homebrew taps/brews/casks and VS Code extensions
   darwin_defaults.yaml            # macOS defaults (dock, finder, terminal)
 .chezmoiscripts/                  # run_once_ and run_onchange_ scripts
   darwin/                         # macOS-specific scripts (packages, defaults, hostname, docker, sudo touch)
@@ -56,17 +56,14 @@ packages:
       taps: []
       brews: []
       casks: []
-      ports: [] # MacPorts packages
     work:
       taps: []
       brews: []
       casks: []
-      ports: [] # MacPorts packages
     personal:
       taps: []
       brews: []
       casks: []
-      ports: [] # MacPorts packages
 ```
 
 Packages are installed by `.chezmoiscripts/darwin/run_onchange_darwin-install-packages.sh.tmpl`.
