@@ -73,12 +73,16 @@ packages:
         - tabby
         - stirling-pdf
         - zennotes/tap/zennotes
+        - homebrew-app
     work:
       casks:
         - firefox
         - github
         - github-copilot-app
         - copilot-cli
+        - docker-desktop
+        - windows-app
+        - mac-performance-monitor
     personal:
       casks:
         - bambu-studio
