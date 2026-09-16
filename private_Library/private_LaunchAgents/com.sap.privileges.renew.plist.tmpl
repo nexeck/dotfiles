@@ -12,21 +12,18 @@
 <dict>
     <key>Label</key>
     <string>com.sap.privileges.renew</string>
-    {{- /* launchd's StartInterval is strictly fixed, so the randomised delay is
-          done in the job itself: renew, then sleep a random 600-13200s
-          (10-220 min) and exit. KeepAlive relaunches immediately, so the gap
-          between two renewals is re-randomised after every run. The upper
-          bound stays below the 240 min for which `--add` grants admin rights,
-          leaving a 20 min safety margin so the grant never lapses. The CLI
-          path is passed as $0 rather than interpolated into the shell string,
-          so no quoting or escaping of the path is needed. RunAtLoad fires
-          right at login, before PrivilegesDaemon's on-demand XPC service is
-          necessarily reachable and before the console user is always fully
-          registered, so `--add` is retried a few times (5s apart) rather than
-          given up on after a single attempt. The retry loop still always
-          falls through to the sleep afterwards - even once retries are
-          exhausted - so a persistent failure never turns into a hot restart
-          loop. */}}
+    {{- /* Renew, then sleep a random 600-13200s (10-220 min) before the next
+          KeepAlive restart. PrivilegesCLI --add grants admin access for 240
+          minutes, leaving a 20-minute margin while spreading renewal load.
+          The long-lived shell is intentionally transparent through its
+          StandardOutPath/StandardErrorPath log. ThrottleInterval prevents a
+          transient launchd or CLI failure from becoming a rapid restart loop.
+          The CLI path is passed as $0 rather than interpolated into the shell
+          string, so no quoting or escaping of the path is needed. RunAtLoad
+          fires at login, and startup retries handle PrivilegesDaemon readiness.
+          The retry loop always reaches the randomized sleep so persistent
+          failures are retried on the next scheduled cycle rather than creating
+          a hot loop. */}}
     <key>ProgramArguments</key>
     <array>
         <string>/bin/sh</string>
@@ -38,6 +35,8 @@
     <true/>
     <key>RunAtLoad</key>
     <true/>
+    <key>ThrottleInterval</key>
+    <integer>60</integer>
     <key>StandardOutPath</key>
     <string>{{ .chezmoi.homeDir }}/Library/Logs/com.sap.privileges.renew.log</string>
     <key>StandardErrorPath</key>
