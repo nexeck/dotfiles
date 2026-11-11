@@ -116,9 +116,22 @@ fi
 
 # --- Chezmoi ---
 echo "==> Initializing Dotfiles with chezmoi..."
-if [ -d "$HOME/.local/share/chezmoi" ]; then
-    echo "Existing chezmoi directory found. Applying..."
+chezmoi_data=""
+if chezmoi_data="$(chezmoi data --format=json 2>/dev/null)"; then
+    has_profile_data=false
+    if printf '%s\n' "$chezmoi_data" | grep -q '"isWork"[[:space:]]*:'; then
+        has_profile_data=true
+    fi
+else
+    has_profile_data=false
+fi
+
+if [ "$has_profile_data" = true ]; then
+    echo "Existing chezmoi configuration found. Applying..."
     chezmoi apply
+elif git -C "$HOME/.local/share/chezmoi" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Existing chezmoi checkout found without configuration. Initializing it..."
+    chezmoi init --apply --source "$HOME/.local/share/chezmoi"
 else
     echo "Initializing new chezmoi repository..."
     chezmoi init --apply --ssh nexeck

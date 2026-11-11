@@ -96,10 +96,10 @@ section "Proton Pass session"
 
 if have pass-cli; then
     ok "pass-cli installed"
-    if pass-cli test >/dev/null 2>&1; then
+    if pass-cli vault list >/dev/null 2>&1; then
         ok "session valid"
     else
-        bad "session invalid - every chezmoi command will fail to render"
+        bad "could not access Proton Pass vaults"
         note "fix with: pass-cli login"
     fi
 else

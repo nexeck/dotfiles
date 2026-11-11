@@ -1,6 +1,5 @@
-# Sourced automatically by zsh for login shells, before .zshrc.
-# PATH/env setup lives here (not only in .zshrc) so it's exported once per
-# login session and inherited by every child shell/process. ~/.zshrc sources
-# the same script for the benefit of non-login interactive shells; path.sh
-# guards itself against running twice in the same shell.
+# Sourced automatically by zsh for login shells, after macOS path_helper.
+# PATH/env setup lives here so configured paths retain priority. ~/.zshrc
+# sources the same script for non-login interactive shells; path.sh guards
+# itself against running twice in the same shell.
 [ -r "$HOME/.config/shell/path.sh" ] && . "$HOME/.config/shell/path.sh"

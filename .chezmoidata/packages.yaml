@@ -42,6 +42,7 @@ packages:
         - git-lfs
         - git-town
         - git-filter-repo
+        - gh
         - jq
         - yq
         - tig

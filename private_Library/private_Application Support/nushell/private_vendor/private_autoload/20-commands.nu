@@ -1,7 +1,6 @@
-# The implementation lives once in ~/.local/bin/update. nushell has a built-in
-# `update` (for table cells), so without this wrapper the script would only be
-# reachable as `^update`. Every other shell picks it up straight from $PATH.
-def update [] { ^update }
+# Nushell has a built-in `update` for table cells. Keep the system updater
+# available under a distinct name.
+def dotfiles-update [] { ^update }
 
 def copilot-usage [...args: string] {
     ^copilot-usage ...$args
@@ -21,11 +20,19 @@ def --wrapped watch [...args: string] {
 def --env load-env-vars [file: path] {
     let env_vars = open $file
         | lines
-        | where { |l| not ($l | str starts-with '#') and ($l | str contains '=') }
-        | reduce --fold {} { |l, acc|
-            let parts = ($l | split row '=' --number 2)
+        | each { |line| $line | str trim }
+        | where { |line| $line != '' and not ($line | str starts-with '#') and ($line | str contains '=') }
+        | reduce --fold {} { |line, acc|
+            let parts = ($line | split row '=' --number 2)
             if ($parts | length) == 2 {
-                $acc | merge {($parts | first | str trim): ($parts | last | str trim)}
+                let raw_key = ($parts | first | str trim)
+                let key = ($raw_key | str replace --regex '^export\s+' '')
+                let value = ($parts | last | str trim | str trim --char '"' | str trim --char "'")
+                if ($key =~ '^[A-Za-z_][A-Za-z0-9_]*$') {
+                    $acc | merge {($key): $value}
+                } else {
+                    $acc
+                }
             } else {
                 $acc
             }

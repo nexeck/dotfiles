@@ -15,8 +15,7 @@ no Linux support, and the provisioning scripts assume Homebrew and `sudo`.
 
 The repository requires chezmoi 2.69.0 or newer because its templates use the
 Proton Pass template functions introduced after 2.62.
-This supersedes the legacy shorthand on the requirement line above; the
-enforced source file is `.chezmoiversion`.
+The enforced source file is `.chezmoiversion`.
 
 ## Fresh machine
 
@@ -25,7 +24,7 @@ Run the repository's [init.sh](./init.sh) from a trusted checkout. It will:
 1. Ask **"Is this a work machine?"** — this choice is stored and drives every
    profile-conditional file from then on.
 2. Ask **"Does this machine use Zscaler?"** — this controls the optional PKL
-  certificate export and Copilot continuation LaunchAgent.
+  certificate export.
 3. Install `pass-cli` (Proton Pass CLI) via a pre-hook, so templates can resolve
    secrets.
 4. Write the dotfiles, then run the provisioning scripts: install packages,
@@ -55,18 +54,8 @@ chezmoi apply                # apply them
 chezmoi apply --force <path> # re-apply one target, skipping the "changed since" prompt
 chezmoi edit <file>          # edit the source of a deployed file (opens micro)
 chezmoi add <file>           # start managing an existing file
-update                       # upgrade Homebrew and tldr pages
+update                       # upgrade Homebrew and tldr pages (dotfiles-update in Nushell)
 dotfiles-doctor              # check that agent, secrets, signing and agents work
-```
-
-When enabled during init, the optional `zscaler-copilot-continue` helper checks
-every five minutes for a Zscaler/AI interstitial on `api.githubcopilot.com`,
-extracts its continuation form and submits it with `curl`. It never opens or
-controls a browser. Apply the files, then load the agent once:
-
-```sh
-chezmoi apply
-launchctl bootstrap gui/"$(id -u)" ~/Library/LaunchAgents/com.user.zscaler-copilot-continue.plist
 ```
 
 Packages are **not** installed by hand: add them to `.chezmoidata/packages.yaml`
@@ -81,11 +70,11 @@ not filtered for Intel compatibility.
 | ------------------ | ----------------------------------------------------------------- |
 | `.chezmoidata/`    | Data files: package lists, macOS defaults                          |
 | `.chezmoiscripts/` | Provisioning scripts (`run_once_` / `run_onchange_`)               |
-| `dot_config/`      | `~/.config`: fish, git, starship, atuin, curl, zed, shared shell   |
+| `dot_config/`      | `~/.config`: fish, git, starship, atuin, zed, shared shell          |
 | `dot_local/bin/`   | Standalone scripts shared by every shell via `$PATH`               |
 | `private_dot_ssh/` | SSH config, `allowed_signers`, public keys                         |
 | `private_Library/` | LaunchAgents, nushell, VS Code settings                            |
-| `scripts/`         | Manual debugging helpers — never run automatically                 |
+| `dot_curlrc`       | Curl defaults, loaded by curl in every environment                  |
 
 `AGENT.md` documents the conventions in detail (naming prefixes, script phases,
 where shared logic belongs). Read it before making structural changes.
@@ -156,8 +145,8 @@ launchctl bootout gui/"$(id -u)" "$plist"; launchctl bootstrap gui/"$(id -u)" "$
 fish caches failed command lookups. Start a new shell (`exec fish`).
 
 **A LaunchAgent change doesn't take effect**
-`chezmoi apply` writes the plist but does not reload launchd — `bootout` then
-`bootstrap` it as above.
+`chezmoi apply` reloads the managed LaunchAgents. If you change one manually,
+`bootout` then `bootstrap` it as above.
 
 **A deleted file keeps coming back in `$HOME`**
 Removing a source entry does not delete the deployed copy. Add its
@@ -168,6 +157,8 @@ destination-relative path to `.chezmoiremove`.
 There is no CI yet. Before committing, at minimum:
 
 ```sh
+tests/check-shell-config.sh
+
 # every script template must render and be syntactically valid
 for t in .chezmoiscripts/*.tmpl .chezmoiscripts/darwin/*.tmpl; do
     chezmoi execute-template < "$t" > /tmp/out.sh && bash -n /tmp/out.sh

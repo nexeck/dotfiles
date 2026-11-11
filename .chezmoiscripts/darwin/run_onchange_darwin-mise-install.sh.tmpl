@@ -1,0 +1,15 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Re-run whenever the managed runtime pins change.
+# mise config hash: {{ include "dot_config/private_mise/private_config.toml" | sha256sum }}
+
+if ! command -v mise >/dev/null 2>&1; then
+    echo "Error: mise is required to install the declared runtime versions." >&2
+    exit 1
+fi
+
+mise --cd "$HOME" install --yes
+{{ end -}}

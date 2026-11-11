@@ -1,3 +1,5 @@
-# .zshenv is sourced on ALL zsh invocations, including non-interactive scripts and `zsh -c`.
-# Sets PATH and mise shims so external tools, subshells, and background tasks find installed binaries.
-[ -r "$HOME/.config/shell/path.sh" ] && . "$HOME/.config/shell/path.sh"
+# .zshenv is sourced on all zsh invocations. For login shells, wait until
+# .zprofile so path.sh runs after macOS path_helper.
+if [[ ! -o login && -r "$HOME/.config/shell/path.sh" ]]; then
+    . "$HOME/.config/shell/path.sh"
+fi

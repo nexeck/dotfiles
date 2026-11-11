@@ -51,8 +51,6 @@ fi
 
 # Resolve extra_paths.txt (expanding a leading $HOME or $HOMEBREW_PREFIX,
 # skipping comments/blank lines/missing dirs), acting on each dir as we read it:
-# Resolve extra_paths.txt (expanding a leading $HOME or $HOMEBREW_PREFIX,
-# skipping comments/blank lines/missing dirs), acting on each dir as we read it:
 # either print it (--print-extra-paths, for fish) or accumulate it to prepend
 # to PATH while preserving the top-to-bottom priority order.
 _extra_path=""

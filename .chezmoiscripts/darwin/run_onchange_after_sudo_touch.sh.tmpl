@@ -20,7 +20,18 @@ else
     # Fallback for older macOS versions
     if ! grep -q "pam_tid" /etc/pam.d/sudo; then
         echo "Enabling Touch ID in /etc/pam.d/sudo..."
-        echo "auth sufficient pam_tid.so" | cat - /etc/pam.d/sudo | sudo tee /etc/pam.d/sudo > /dev/null
+        sudo sh -s <<'ROOT'
+set -eu
+source=/etc/pam.d/sudo
+tmp=$(mktemp /etc/pam.d/.sudo.XXXXXX)
+trap 'rm -f "$tmp"' 0 HUP INT TERM
+cp -p "$source" "$tmp"
+{
+    printf '%s\n' 'auth sufficient pam_tid.so'
+    cat "$source"
+} > "$tmp"
+mv "$tmp" "$source"
+ROOT
     fi
 fi
 {{ end -}}

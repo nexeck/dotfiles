@@ -16,13 +16,12 @@ if status is-interactive
         abbr --add lt 'eza --long --tree'
     end
 
-    if command -qa bottom
+    if command -qa btm
         abbr --add top btm
         abbr --add htop btm
     end
 
-    if command -qa ripgrep
+    if command -qa rg
         abbr --add grep rg
     end
 end
-

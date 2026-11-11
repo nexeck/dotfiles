@@ -13,6 +13,20 @@
 # See https://www.nushell.sh/book/configuration.html
 #
 # Also see `help config env` for more options.
-#
-# You can remove these comments if you want or leave
-# them for future reference.
+
+$env.HOMEBREW_NO_ANALYTICS = "1"
+$env.SSH_AUTH_SOCK = $"($env.HOME)/.ssh/proton-pass-agent.sock"
+
+let path_sh = $"($env.HOME)/.config/shell/path.sh"
+let extra_paths = if ($path_sh | path exists) {
+    ^sh $path_sh --print-extra-paths | lines
+} else {
+    []
+}
+let managed_paths = [
+    $"($env.HOME)/.local/share/mise/shims"
+    "/opt/homebrew/bin"
+    "/opt/homebrew/sbin"
+] | where { |path| $path | path exists }
+
+$env.PATH = ($managed_paths ++ $extra_paths ++ $env.PATH | uniq)
