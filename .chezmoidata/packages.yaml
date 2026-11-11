@@ -1,12 +1,17 @@
 packages:
   vscode:
     all:
-    #   - editorconfig.editorconfig
-    #   - astral-sh.ty
-    #   - charliermarsh.ruff
-    #   - ms-python.python
-    #   - ms-toolsai.datawrangler
-    #   - ms-toolsai.jupyter
+      - editorconfig.editorconfig
+      - astral-sh.ty
+      - charliermarsh.ruff
+      - ms-python.python
+      - ms-toolsai.datawrangler
+      - ms-toolsai.jupyter
+      - rvben.rumdl
+      - GitHub.vscode-pull-request-github
+      - foam.foam-vscode
+    work:
+      - GitHub.copilot-chat
   darwin:
     all:
       taps:
@@ -83,6 +88,7 @@ packages:
         - docker-desktop
         - windows-app
         - mac-performance-monitor
+        - jetbrains-toolbox
     personal:
       casks:
         - bambu-studio
