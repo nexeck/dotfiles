@@ -6,6 +6,15 @@ Host github.com
   ControlMaster         no
   ControlPath           none
 
+# Work identity for JH-JDS URLs rewritten by git insteadOf (dot_config/git/config).
+Host github-jhdev
+  HostName              github.com
+  User                  git
+  IdentityFile          ~/.ssh/id_ed25519_work.pub
+  IdentitiesOnly        yes
+  ControlMaster         no
+  ControlPath           none
+
 Host *
   ServerAliveInterval   60
   ServerAliveCountMax   30

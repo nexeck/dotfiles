@@ -7,6 +7,10 @@
 [includeIf "hasconfig:remote.*.url:git@github.com:*_jhdev/**"]
 	path = ~/.config/git/config_work
 
+# Global, because uv's cache repos have no remote and includeIf above never matches them.
+[url "git@github-jhdev:JH-JDS/"]
+	insteadOf = ssh://git@github.com/JH-JDS/
+
 [apply]
 	# Detect whitespace errors when applying a patch
 	whitespace = fix
